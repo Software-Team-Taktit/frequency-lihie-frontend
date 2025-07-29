@@ -1,4 +1,5 @@
 import { Input } from "../ui/input";
+import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import {
     Dialog,
@@ -42,7 +43,7 @@ function LogIn() {
             <h1 className="text-2xl font-bold text-center">Log In</h1>
 
             <div className="space-y-2">
-                <label htmlFor="personalId" className="block text-sm font-medium">Personal Id: </label>
+                <Label htmlFor="personalId" className="block text-sm font-medium">Personal Id: </Label>
                 <Input
                     id="personalId"
                     type="text"
