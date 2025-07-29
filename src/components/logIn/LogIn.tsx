@@ -18,7 +18,7 @@ function LogIn() {
     const navigate = useNavigate();
 
     const validatePersonalId = () => {
-        if(!/^d{7}$/.test(personalId)){
+        if(personalId.length != 7){
             setErrData("Personal Id must be exactly 7 digits.");
             return false;
         }

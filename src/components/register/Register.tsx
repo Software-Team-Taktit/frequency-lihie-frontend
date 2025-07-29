@@ -66,25 +66,27 @@ function Register() {
     ];
 
     return (
-        <div className="max-w-md mx-auto mt-20 space-y-6 p-4 border rounded-xl shadow-lg">
-            <h1 className="text-2xl font-bold text-center">Create an account</h1>
+        <div className="flex justify-center items-center min-h-[80vh] px-4">
+            <div className="bg-white shadow-lg rounded-xl p-6 w-full max-w-md space-y-6">
+                <h1 className="text-2xl font-bold text-center">Create an account</h1>
 
-            {fields.map((field) => (
-                <div className="space-y-2" key={field.key}>
-                    <Label htmlFor={field.key}>{field.label}</Label>
-                    <Input
-                        id={field.key}
-                        value={form[field.key]}
-                        onChange={(e) => handleChange(field.key, e.target.value)}
-                        placeholder={field.placeholder}
-                    />
-                    {err[field.key] && (
-                        <p className="text-sm text-red-500">{err[field.key]}</p>
-                    )}
-                </div>
-            ))}
+                {fields.map((field) => (
+                    <div className="space-y-2" key={field.key}>
+                        <Label htmlFor={field.key}>{field.label}</Label>
+                        <Input
+                            id={field.key}
+                            value={form[field.key]}
+                            onChange={(e) => handleChange(field.key, e.target.value)}
+                            placeholder={field.placeholder}
+                        />
+                        {err[field.key] && (
+                            <p className="text-sm text-red-500">{err[field.key]}</p>
+                        )}
+                    </div>
+                ))}
 
-            <Button className="w-full" onClick={handleSubmit}>Register</Button>
+                <Button className="w-full" onClick={handleSubmit}>Register</Button>
+            </div>
         </div>
     );
 }
