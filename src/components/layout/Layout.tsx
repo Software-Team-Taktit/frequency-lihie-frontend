@@ -5,7 +5,7 @@ function Layout() {
   return (
     <div className="min-h-screen flex flex-col bg-background text-foreground">
         <NavBar />
-        <main className="lex-grow flex justify-center items-center p-6">
+        <main className="flex-grow flex justify-center items-center p-6">
             <Outlet />
         </main>
     </div>
