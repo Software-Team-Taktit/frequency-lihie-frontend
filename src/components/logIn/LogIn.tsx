@@ -62,7 +62,7 @@ function LogIn() {
                         )}
                     </div>
 
-                    <Button className="w-full text-lg font-semibold shadow-md" onClick={handleSubmit}>
+                    <Button className="w-full text-lg font-semibold shadow-md hover:text-blue-600" onClick={handleSubmit}>
                         Sign In
                     </Button>
 
