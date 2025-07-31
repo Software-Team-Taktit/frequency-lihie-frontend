@@ -14,7 +14,7 @@ function Home() {
                         based on environmental conditions and operational needs.
                     </p>
                     <div className="flex justify-center gap-6 pt-6">
-                        <Button className="bg-blue-500 hover:bg-blue-200 text-white px-6 py-3 rounded-lg shadow-md text-lg font-semibold transition duration-200" onClick={() => navigate("/logIn")}>Log In</Button>
+                        <Button className="bg-blue-500 hover:bg-blue-200 text-white px-6 py-3 rounded-lg shadow-md text-lg font-semibold transition duration-200" variant="outline" onClick={() => navigate("/logIn")}>Log In</Button>
                         <Button className="bg-blue-500 hover:bg-blue-200 text-white px-6 py-3 rounded-lg shadow-md text-lg font-semibold transition duration-200" variant="outline" onClick={() => navigate("/register")}>Register</Button>
                     </div>
                 </div>
