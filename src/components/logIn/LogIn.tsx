@@ -38,37 +38,48 @@ function LogIn() {
         navigate("/register");
     };
 
-    return(
-        <div className="max-w-md mx-auto mt-20 space-y-6 p-4 border rounded-xl shadow-lg">
-            <h1 className="text-2xl font-bold text-center">Log In</h1>
+    return (
+        <main className="p-5">
+            <div className="bg-blue-100 rounded-xl p-10 w-[1800px] h-[750px] mx-auto shadow-md flex items-center justify-center">
+                <div className="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-md space-y-6">
+                    <h1 className="font-luckiest text-6xl text-center text-blue-700">
+                        Log In
+                    </h1>
 
-            <div className="space-y-2">
-                <Label htmlFor="personalId" className="block text-sm font-medium">Personal Id: </Label>
-                <Input
-                    id="personalId"
-                    type="text"
-                    value={personalId}
-                    onChange={(e) => setPersonalId(e.target.value)}
-                    placeholder="Enter your 7-digits personal Id"
-                />
-                {errData && (
-                    <p className="text-sm text-red-500 mt-1">{errData}</p>
-                )}
-            </div> 
-            <Button className="w-full" onClick={handleSubmit}>Sign In</Button>
+                    <div className="space-y-2">
+                        <Label htmlFor="personalId" className="font-dm text-lg text-gray-700">
+                            Personal Id:
+                        </Label>
+                        <Input
+                            id="personalId"
+                            type="text"
+                            value={personalId}
+                            onChange={(e) => setPersonalId(e.target.value)}
+                            placeholder="Enter your 7-digits personal Id"
+                        />
+                        {errData && (
+                            <p className="text-sm text-red-500">{errData}</p>
+                        )}
+                    </div>
 
-            <Dialog open={showDialog} onOpenChange={setShowDialog}>
-                <DialogContent>
-                    <DialogHeader>
-                        <DialogTitle>User not found!</DialogTitle>
-                        <DialogDescription>
-                            You don't have an account.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <Button onClick={handleCreateAccount}>Create an account</Button>
-                </DialogContent>
-            </Dialog>
-        </div>
+                    <Button className="w-full text-lg font-semibold shadow-md" onClick={handleSubmit}>
+                        Sign In
+                    </Button>
+
+                    <Dialog open={showDialog} onOpenChange={setShowDialog}>
+                        <DialogContent className="bg-gray-600 border border-black">
+                            <DialogHeader>
+                                <DialogTitle>User not found!</DialogTitle>
+                                <DialogDescription>
+                                    You don't have an account.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <Button onClick={handleCreateAccount} className="hover:text-blue-900 border border-black">Create an account</Button>
+                        </DialogContent>
+                    </Dialog>
+                </div>
+            </div>
+        </main>
     );
 }
 

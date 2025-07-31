@@ -75,7 +75,7 @@ function Register() {
 
                     {fields.map((field) => (
                         <div className="space-y-2" key={field.key}>
-                            <Label htmlFor={field.key} className="font-dm text-gray-700">
+                            <Label htmlFor={field.key} className="font-dm text-lg text-gray-700">
                                 {field.label}
                             </Label>
                             <Input
