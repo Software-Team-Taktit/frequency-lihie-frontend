@@ -66,29 +66,38 @@ function Register() {
     ];
 
     return (
-        <div className="flex justify-center items-center min-h-[80vh] px-4">
-            <div className="bg-white shadow-lg rounded-xl p-6 w-full max-w-md space-y-6">
-                <h1 className="text-2xl font-bold text-center">Create an account</h1>
+        <main className="p-5">
+            <div className="bg-blue-100 rounded-xl p-10 w-[1800px] h-[750px] mx-auto shadow-md flex items-center justify-center">
+                <div className="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-md space-y-6">
+                    <h1 className="font-luckiest text-6xl text-center text-blue-700">
+                        Create an account
+                    </h1>
 
-                {fields.map((field) => (
-                    <div className="space-y-2" key={field.key}>
-                        <Label htmlFor={field.key}>{field.label}</Label>
-                        <Input
-                            id={field.key}
-                            value={form[field.key]}
-                            onChange={(e) => handleChange(field.key, e.target.value)}
-                            placeholder={field.placeholder}
-                        />
-                        {err[field.key] && (
-                            <p className="text-sm text-red-500">{err[field.key]}</p>
-                        )}
-                    </div>
-                ))}
+                    {fields.map((field) => (
+                        <div className="space-y-2" key={field.key}>
+                            <Label htmlFor={field.key} className="font-dm text-gray-700">
+                                {field.label}
+                            </Label>
+                            <Input
+                                id={field.key}
+                                value={form[field.key]}
+                                onChange={(e) => handleChange(field.key, e.target.value)}
+                                placeholder={field.placeholder}
+                            />
+                            {err[field.key] && (
+                                <p className="text-dm text-red-500">{err[field.key]}</p>
+                            )}
+                        </div>
+                    ))}
 
-                <Button className="w-full" onClick={handleSubmit}>Register</Button>
+                    <Button className="hover:text-blue-600 w-full mt-4 text-lg font-semibold shadow-md " onClick={handleSubmit}>
+                        Register
+                    </Button>
+                </div>
             </div>
-        </div>
+        </main>
     );
+
 }
 
 export default Register
