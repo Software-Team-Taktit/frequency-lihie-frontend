@@ -8,12 +8,14 @@ import { useState } from "react";
 function Register() {
     const [form, setForm] = useState({
         personalId: "",
+        unit: "",
         firstName: "",
         lastName: ""
     });
 
     let [err, setErr] = useState({
         personalId: "",
+        unit: "",
         firstName: "",
         lastName: ""
     });
@@ -24,20 +26,25 @@ function Register() {
         let valid = true;
         const tmp = {
             personalId: "",
+            unit: "",
             firstName: "",
             lastName: ""
         };
 
         if(!/^\d{7}$/.test(form.personalId)){
-            tmp.personalId = "Personal Id must be exactly 7 digits.";
+            tmp.personalId = "מספר אישי חייב להיות בעל 7 ספרות.";
+            valid = false;
+        }
+        if(form.unit.trim().length < 2){
+            tmp.unit = "שם היחידה חייב להיות לפחות 2 תווים.";
             valid = false;
         }
         if(form.firstName.trim().length < 2){
-            tmp.firstName = "First name is required.";
+            tmp.firstName = "שם פרטי חייב לכלול לפחות 2 תווים.";
             valid = false;
         }
         if(form.lastName.trim().length < 2){
-            tmp.lastName = "Last name is required.";
+            tmp.lastName = "שם משפחה חייב לכלול לפחות 2 תווים.";
             valid = false;
         }
         setErr(tmp);
@@ -60,22 +67,23 @@ function Register() {
         label: string;
         placeholder: string;
     }[] = [
-        {key: "personalId", label: "Personal Id: ", placeholder: "Enter 7-digits personal Id"},
-        {key: "firstName", label: "First Name: ", placeholder: "Enter first name"},
-        {key: "lastName", label: "Last Name: ", placeholder: "Enter last name"}
+        {key: "personalId", label: "מספר אישי: ", placeholder: "הכנס מספר אישי בעל 7 ספרות"},
+        {key: "unit", label: "יחידה: ", placeholder: "הכנס את שם היחידה שלך"},
+        {key: "firstName", label: "שם פרטי: ", placeholder: "הכנס שם פרטי"},
+        {key: "lastName", label: "שם משפחה: ", placeholder: "הכנס שם משפחה"}
     ];
 
     return (
         <main className="p-5">
             <div className="bg-blue-100 rounded-xl p-10 w-[1800px] h-[750px] mx-auto shadow-md flex items-center justify-center">
                 <div className="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-md space-y-6">
-                    <h1 className="font-luckiest text-6xl text-center text-blue-700">
-                        Create an account
+                    <h1 className="suez-one-regular text-6xl text-center text-blue-700">
+                        הרשמה למערכת
                     </h1>
 
                     {fields.map((field) => (
                         <div className="space-y-2" key={field.key}>
-                            <Label htmlFor={field.key} className="font-dm text-lg text-gray-700">
+                            <Label htmlFor={field.key} className="huninn-regular text-lg text-gray-700">
                                 {field.label}
                             </Label>
                             <Input
@@ -91,7 +99,7 @@ function Register() {
                     ))}
 
                     <Button className="hover:text-blue-600 w-full mt-4 text-lg font-semibold shadow-md " onClick={handleSubmit}>
-                        Register
+                        הרשמה
                     </Button>
                 </div>
             </div>

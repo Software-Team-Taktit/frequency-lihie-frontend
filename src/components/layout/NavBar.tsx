@@ -15,19 +15,19 @@ function NavBar() {
         <header className="bg-white dark:bg-gray-900 shadow-md">
             <nav className="h-16 w-full flex justify-between items-center px-10 max-w-screen-xl mx-auto">
                 <div className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-                    <Link to="/home" className="hover:text-blue-600 transition-all">Merhavim</Link>
+                    <Link to="/home" className="hover:text-blue-600 transition-all huninn-regular">מרחבים</Link>
                 </div>
 
                 <div className="flex items-center space-x-4">
                     {
                         !isLoggedIn ? (
                             <>
-                                <Link to="/register"><Button className="hover:text-blue-600 font-bold text-2xl px-4 py-2 mr-4 text-gray-800">Register</Button></Link>
-                                <Link to="/logIn"><Button className="hover:text-blue-600 font-bold text-2xl px-4 py-2 text-gray-800">Log In</Button></Link>
+                                <Link to="/register"><Button className="huninn-regular hover:text-blue-600 font-bold text-2xl px-4 py-2 mr-4 text-gray-800">הרשמה</Button></Link>
+                                <Link to="/logIn"><Button className="huninn-regular hover:text-blue-600 font-bold text-2xl px-4 py-2 text-gray-800">התחברות</Button></Link>
                             </>
                         ) : (
                             <Button variant="outline" onClick={handleLogout}>
-                                Log Out
+                                התנתקות
                             </Button>
                         )
                     }

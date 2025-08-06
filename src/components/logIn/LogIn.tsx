@@ -19,7 +19,7 @@ function LogIn() {
 
     const validatePersonalId = () => {
         if(personalId.length != 7){
-            setErrData("Personal Id must be exactly 7 digits.");
+            setErrData("מספר אישי חייב להיות 7 ספרות בדיוק.");
             return false;
         }
         setErrData("");
@@ -42,39 +42,40 @@ function LogIn() {
         <main className="p-5">
             <div className="bg-blue-100 rounded-xl p-10 w-[1800px] h-[750px] mx-auto shadow-md flex items-center justify-center">
                 <div className="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-md space-y-6">
-                    <h1 className="font-luckiest text-6xl text-center text-blue-700">
-                        Log In
+                    <h1 className="suez-one-regular text-6xl text-center text-blue-700">
+                        התחברות לחשבון שלך
                     </h1>
 
                     <div className="space-y-2">
-                        <Label htmlFor="personalId" className="font-dm text-lg text-gray-700">
-                            Personal Id:
+                        <Label htmlFor="personalId" className="huninn-regular text-lg text-gray-700">
+                            מספר אישי:
                         </Label>
                         <Input
                             id="personalId"
                             type="text"
                             value={personalId}
                             onChange={(e) => setPersonalId(e.target.value)}
-                            placeholder="Enter your 7-digits personal Id"
+                            placeholder="הכנס מספר אישי בעל 7 ספרות"
                         />
                         {errData && (
                             <p className="text-sm text-red-500">{errData}</p>
                         )}
                     </div>
 
-                    <Button className="w-full text-lg font-semibold shadow-md hover:text-blue-600" onClick={handleSubmit}>
-                        Sign In
+                    <Button className="w-full text-lg huninn-regular shadow-md hover:text-blue-600" onClick={handleSubmit}>
+                        התחברות
                     </Button>
 
                     <Dialog open={showDialog} onOpenChange={setShowDialog}>
                         <DialogContent className="bg-gray-600 border border-black">
                             <DialogHeader>
-                                <DialogTitle>User not found!</DialogTitle>
+                                <DialogTitle>חשבון לא נמצא!</DialogTitle>
                                 <DialogDescription>
-                                    You don't have an account.
+                                    אין לך חשבון אצלנו במערכת.
+                                    תרצה ליצור חשבון חדש?
                                 </DialogDescription>
                             </DialogHeader>
-                            <Button onClick={handleCreateAccount} className="hover:text-blue-900 border border-black">Create an account</Button>
+                            <Button onClick={handleCreateAccount} className="hover:text-blue-900 border border-black">יצירת חשבון חדש</Button>
                         </DialogContent>
                     </Dialog>
                 </div>

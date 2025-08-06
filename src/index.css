@@ -1,8 +1,24 @@
-@import url('https://fonts.googleapis.com/css2?family=DM+Sans&family=Luckiest+Guy&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Huninn&family=Suez+One&display=swap');
+
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+body{
+  direction: rtl;
+}
+.suez-one-regular {
+  font-family: "Suez One", serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.huninn-regular {
+  font-family: "Huninn", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
 
 /* פונט רגיל */
 .font-dm {
