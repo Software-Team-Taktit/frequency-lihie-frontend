@@ -98,7 +98,7 @@ function Register() {
                         </div>
                     ))}
 
-                    <Button className="hover:text-blue-600 w-full mt-4 text-lg font-semibold shadow-md " onClick={handleSubmit}>
+                    <Button className="hover:text-blue-600 w-full mt-4 text-lg huninn-regular shadow-md " onClick={handleSubmit}>
                         הרשמה
                     </Button>
                 </div>
