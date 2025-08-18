@@ -62,7 +62,7 @@ function Platform() {
     };
 
     const onChangNumber = (key: "frequency_mhz" | "bw_khz" | "tx_power_dbm" | "antenna_height_m") => {
-        (e: React.ChangeEvent<HTMLInputElement>) => {
+        return (e: React.ChangeEvent<HTMLInputElement>) => {
             const v = e.target.value;
             const n = v.trim() === "" ? NaN : Number(v);
             setPlatform(p => ({ ...p, [key]: n } as any));
@@ -72,11 +72,67 @@ function Platform() {
 
     const handleSubmit = (e : React.FormEvent) => {
         e.preventDefault();
-        if(!validatePlatform()) return;
+        if(validatePlatform()){
+            console.log("platform created");
+            navigate("/home");
+        }
+        return;
     }
 
+    const fields : {
+        key: keyof typeof platform;
+        label: string;
+        placeholder: string;
+    }[] = [
+        {key: "name", label: "שם הפלטפורמה: ", placeholder: "הכנס את שם הפלטפורמה שלך"},
+        {key: "frequency_mhz", label:"עוצמת התדר: (MHz)", placeholder: "הכנס את עוצמת התדר של הפלטפורמה"},
+        {key: "bw_khz", label:"רוחב פס התדר: (KHz)", placeholder:"הכנס את רוכב פס התדר שלך"},
+        {key: "tx_power_dbm", label:"עוצמת שידור: (dBm)", placeholder:"הכנס את עוצמת השידור של הפלטפורמה שלך"},
+        {key: "antenna_height_m", label: "גובה אנטנה: (m)", placeholder: "הכנס את גובה האנטנה שלך"}
+    ];
+
+
     return (
-        <div>Platform</div>
+        <main className="p-5">
+            <div className="bg-blue-100 rounded-xl p-10 w-[1800px] h-[750px] mx-auto shadow-md flex items-center justify-center">
+                <div className="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-md space-y-6">
+                    <h1 className="suez-one-regular text-6xl text-center text-blue-700">
+                        קליטת פלטפורמה
+                    </h1>
+
+                    <form onSubmit={handleSubmit} className="space-y-6">
+                        {fields.map((field) => (
+                            <div className="space-y-2" key={field.key}>
+                                <Label htmlFor={field.key} className="huninn-regular text-lg text-gray-700">
+                                    {field.label}
+                                </Label>
+                                <Input 
+                                    id={field.key}
+                                    type= {field.key === "name" ? "text" : "number"}
+                                    value={field.key === "name"
+                                        ? platform.name :
+                                        Number.isFinite(platform[field.key] as number) ?
+                                        (platform[field.key] as number) : ""
+                                    }
+                                    placeholder={field.placeholder}
+                                    onChange={
+                                        field.key === "name" ?
+                                        onChangeText :
+                                        onChangNumber(field.key)
+                                    }>   
+                                </Input>
+                                {err[field.key] && <p className="text-sm text-red-600">{err[field.key]}</p>}
+                            </div>
+                        ))}
+
+                        <Button className="hover:text-blue-600 w-full mt-4 text-lg huninn-regular shadow-md" onClick={handleSubmit}>
+                            יצירת פלטפורמה
+                        </Button>
+                        
+                    </form>
+                </div>
+            </div>
+        </main>
     )
 }
 
