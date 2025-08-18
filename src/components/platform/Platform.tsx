@@ -2,7 +2,7 @@ import { Input } from "../ui/input"
 import { Button } from "../ui/button"
 import { Label } from "../ui/label";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import React, { useState } from "react";
 
 function Platform() {
 
@@ -54,6 +54,25 @@ function Platform() {
 
         setErr(tmp);
         return valid;
+    };
+
+    const onChangeText = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setPlatform(p => ({ ...p, name: e.target.value }));
+        if (err.name) setErr(prev => ({ ...prev, name: "" }));
+    };
+
+    const onChangNumber = (key: "frequency_mhz" | "bw_khz" | "tx_power_dbm" | "antenna_height_m") => {
+        (e: React.ChangeEvent<HTMLInputElement>) => {
+            const v = e.target.value;
+            const n = v.trim() === "" ? NaN : Number(v);
+            setPlatform(p => ({ ...p, [key]: n } as any));
+            if (err[key]) setErr(prev => ({ ...prev, [key]: "" }));
+        }
+    }
+
+    const handleSubmit = (e : React.FormEvent) => {
+        e.preventDefault();
+        if(!validatePlatform()) return;
     }
 
     return (
