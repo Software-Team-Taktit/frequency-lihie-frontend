@@ -33,16 +33,19 @@ function Platform() {
             antenna_height_m: ""
         };
         if(!platform.name.trim()){
-            tmp.name = "name is required!";
+            tmp.name = "שם הפלטפורמה הוא חובה!";
             valid = false;
         }
 
         const checkPos = (val: number, field: keyof typeof tmp) => {
             if (!Number.isFinite(val)){
-                tmp[field] = "must be a float number";
+                tmp[field] = "חייב להיות מספר";
                 valid = false;
             } else if(val <= 0){
-                tmp[field] = "field must be > 0";
+                tmp[field] = "חייב להיות חיובי";
+                valid = false;
+            } else if(Number.isInteger(val)){
+                tmp[field] = "חייב להיות מספר עשרוני";
                 valid = false;
             }
         };
@@ -94,13 +97,13 @@ function Platform() {
 
     return (
         <main className="p-5">
-            <div className="bg-blue-100 rounded-xl p-10 w-[1800px] h-[750px] mx-auto shadow-md flex items-center justify-center">
+            <div className="bg-blue-100 rounded-xl p-10 w-[1800px] h-[800px] mx-auto shadow-md flex items-center justify-center">
                 <div className="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-md space-y-6">
                     <h1 className="suez-one-regular text-6xl text-center text-blue-700">
                         קליטת פלטפורמה
                     </h1>
 
-                    <form onSubmit={handleSubmit} className="space-y-6">
+                    <form onSubmit={handleSubmit} className="space-y-1">
                         {fields.map((field) => (
                             <div className="space-y-2" key={field.key}>
                                 <Label htmlFor={field.key} className="huninn-regular text-lg text-gray-700">
@@ -125,7 +128,7 @@ function Platform() {
                             </div>
                         ))}
 
-                        <Button className="hover:text-blue-600 w-full mt-4 text-lg huninn-regular shadow-md" onClick={handleSubmit}>
+                        <Button className="hover:text-blue-600 w-full text-lg huninn-regular shadow-md mt-6" onClick={handleSubmit}>
                             יצירת פלטפורמה
                         </Button>
                         

@@ -16,6 +16,7 @@ function NavBar() {
             <nav className="h-16 w-full flex justify-between items-center px-10 max-w-screen-xl mx-auto">
                 <div className="text-2xl font-bold text-gray-800 dark:text-gray-100">
                     <Link to="/home" className="hover:text-blue-600 transition-all huninn-regular">מרחבים</Link>
+                    <Link to="/platform" className="hover:text-blue-600 transition-all huninn-regular mr-5">פלטפורמה</Link>
                 </div>
 
                 <div className="flex items-center space-x-4">

@@ -75,8 +75,8 @@ function Register() {
 
     return (
         <main className="p-5">
-            <div className="bg-blue-100 rounded-xl p-10 w-[1800px] h-[750px] mx-auto shadow-md flex items-center justify-center">
-                <div className="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-md space-y-6">
+            <div className="bg-blue-100 rounded-xl p-10 w-[1800px] h-[800px] mx-auto shadow-md flex items-center justify-center">
+                <div className="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-md space-y-3">
                     <h1 className="suez-one-regular text-6xl text-center text-blue-700">
                         הרשמה למערכת
                     </h1>
