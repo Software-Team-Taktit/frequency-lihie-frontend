@@ -6,12 +6,20 @@ import React, { useState } from "react";
 
 function Platform() {
 
+    type NumericKey = "frequency_mhz" | "bw_khz" | "tx_power_dbm" | "antenna_height_m";
+
     const [platform, setPlatform] = useState({
         name: "",
-        frequency_mhz: 0.0,
-        bw_khz: 0.0,
-        tx_power_dbm: 0.0,
-        antenna_height_m: 0.0
+        frequency_mhz: NaN as number,
+        bw_khz: NaN as number,
+        tx_power_dbm: NaN as number,
+        antenna_height_m: NaN as number    
+    });
+    const [raw, setRaw] = useState<Record<NumericKey, string>>({
+        frequency_mhz: "",
+        bw_khz: "",
+        tx_power_dbm: "",
+        antenna_height_m: ""
     });
     const [err, setErr] = useState({
         name: "",
@@ -37,23 +45,36 @@ function Platform() {
             valid = false;
         }
 
-        const checkPos = (val: number, field: keyof typeof tmp) => {
-            if (!Number.isFinite(val)){
-                tmp[field] = "חייב להיות מספר";
-                valid = false;
-            } else if(val <= 0){
-                tmp[field] = "חייב להיות חיובי";
-                valid = false;
-            } else if(Number.isInteger(val)){
-                tmp[field] = "חייב להיות מספר עשרוני";
-                valid = false;
-            }
-        };
+        const decimalPattern = /^\d+(\.\d+)?$/;
 
-        checkPos(platform.frequency_mhz, "frequency_mhz");
-        checkPos(platform.bw_khz, "bw_khz");
-        checkPos(platform.tx_power_dbm, "tx_power_dbm");
-        checkPos(platform.antenna_height_m, "antenna_height_m");
+        (["frequency_mhz","bw_khz","tx_power_dbm","antenna_height_m"] as NumericKey[])
+        .forEach((key) => {
+            const text = raw[key]?.trim();
+
+            if(!text){
+                tmp[key] = "שדה חובה!";
+                valid = false;
+                return;
+            }
+
+            if(!decimalPattern.test(text)){
+                tmp[key] = "חייב להיות מספר עשרוני חיובי.";
+                valid = false;
+                return;
+            }
+
+            const n = Number(text);
+            if(!Number.isFinite(n)){
+                tmp[key] = "חייב להיות מספר";
+                valid = false;
+                return;
+            }
+            if (n <= 0){
+                tmp[key] = "חייב להיות מספר חיובי.";
+                valid = false;
+                return;
+            }
+        });
 
         setErr(tmp);
         return valid;
@@ -64,22 +85,28 @@ function Platform() {
         if (err.name) setErr(prev => ({ ...prev, name: "" }));
     };
 
-    const onChangNumber = (key: "frequency_mhz" | "bw_khz" | "tx_power_dbm" | "antenna_height_m") => {
-        return (e: React.ChangeEvent<HTMLInputElement>) => {
+    const onChangNumber = (key: NumericKey) => 
+        (e: React.ChangeEvent<HTMLInputElement>) => {
             const v = e.target.value;
-            const n = v.trim() === "" ? NaN : Number(v);
-            setPlatform(p => ({ ...p, [key]: n } as any));
-            if (err[key]) setErr(prev => ({ ...prev, [key]: "" }));
-        }
-    }
+            setRaw(r => ({...r, [key]: v}));
+            if(err[key]) setErr(prev => ({ ...prev, [key]: "" }));
+        };
 
     const handleSubmit = (e : React.FormEvent) => {
         e.preventDefault();
-        if(validatePlatform()){
-            console.log("platform created");
+        
+        if(validatePlatform())
+        {
+            const next = {...platform};
+            (["frequency_mhz","bw_khz","tx_power_dbm","antenna_height_m"] as NumericKey[])
+            .forEach((key) => {
+                next[key] = Number(raw[key]);
+            });
+            setPlatform(next);
+
+            console.log("platform created!");
             navigate("/home");
         }
-        return;
     }
 
     const fields : {
@@ -105,26 +132,29 @@ function Platform() {
 
                     <form onSubmit={handleSubmit} className="space-y-1">
                         {fields.map((field) => (
-                            <div className="space-y-2" key={field.key}>
+                            <div className="space-y-2" key={field.key as string}>
                                 <Label htmlFor={field.key} className="huninn-regular text-lg text-gray-700">
                                     {field.label}
                                 </Label>
-                                <Input 
-                                    id={field.key}
-                                    type= {field.key === "name" ? "text" : "number"}
-                                    value={field.key === "name"
-                                        ? platform.name :
-                                        Number.isFinite(platform[field.key] as number) ?
-                                        (platform[field.key] as number) : ""
-                                    }
+                                {field.key === "name" ? (
+                                    <Input
+                                    id={field.key as string}
+                                    type="text"
+                                    value={platform.name}
                                     placeholder={field.placeholder}
-                                    onChange={
-                                        field.key === "name" ?
-                                        onChangeText :
-                                        onChangNumber(field.key)
-                                    }>   
-                                </Input>
-                                {err[field.key] && <p className="text-sm text-red-600">{err[field.key]}</p>}
+                                    onChange={onChangeText}/>
+                                ): (
+                                    <Input
+                                    id={field.key as string}
+                                    type="text"
+                                    inputMode="decimal"
+                                    value={raw[field.key as NumericKey]}
+                                    placeholder={field.placeholder}
+                                    onChange={onChangNumber(field.key as NumericKey)}/>
+                                )}
+                                {err[field.key as keyof typeof err] && (
+                                    <p className="text-sm text-red-600">{err[field.key as keyof typeof err]}</p>
+                                )}
                             </div>
                         ))}
 
