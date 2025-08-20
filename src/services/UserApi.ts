@@ -2,7 +2,7 @@ import type { CreateUserRequest, UpdateUserRequest } from "@/interfaces/UserInte
 
 const BASE_URL = "http://localhost:8000";
 
-async function post<T>(path: string, body: any): Promise<T> {
+async function post(path: string, body: any): Promise<void> {
     const res = await fetch(`${BASE_URL}${path}`, {
         method: "POST",
         headers: {"Content-Type": "application/json"},
@@ -18,9 +18,13 @@ async function post<T>(path: string, body: any): Promise<T> {
         } catch {}
         throw new Error(message);
     }
-    try{
-        return (await res.json()) as T;
-    }catch{
-        return null as unknown as T;
-    }
+    return;
+}
+
+export function registerUser(dto:CreateUserRequest) :Promise<void> {
+    return post("/users", dto);
+}
+
+export function loginByPersonalId(personal_id:string) :Promise<void> {
+    return post("/users/login", {personal_id});
 }
