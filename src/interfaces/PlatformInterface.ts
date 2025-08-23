@@ -1,3 +1,5 @@
+import type { UserType } from "./UserInterface";
+
 export interface CreatePlatformRequest{
     name: string;
     frequency_mhz: Number;
@@ -6,3 +8,13 @@ export interface CreatePlatformRequest{
     antenna_height_m: Number;
 }
 export interface UpdateAdminRequest extends CreatePlatformRequest {}
+
+export interface Platform {
+    id: string;
+    type: UserType;
+    name: string;
+    frequency_mhz: number;
+    bw_khz: number;
+    tx_power_dbm: number;
+    antenna_height_m: number;
+}
