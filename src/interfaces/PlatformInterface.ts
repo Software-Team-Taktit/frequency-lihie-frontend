@@ -11,7 +11,7 @@ export interface UpdateAdminRequest extends CreatePlatformRequest {}
 
 export interface Platform {
     id: string;
-    type: UserType;
+    readonly type: UserType;
     name: string;
     frequency_mhz: number;
     bw_khz: number;
