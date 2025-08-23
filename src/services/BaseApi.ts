@@ -35,10 +35,10 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
     return data as T;
 }
 
-const post = <T>(p: string, b: unknown) => request<T>(p, {method: "POST", body: JSON.stringify(b)});
-const put = <T>(p: string, b: unknown) => request<T>(p, {method: "PUT", body: JSON.stringify(b)});
-const get = <T>(p: string) => request<T>(p, {method: "GET"});
-const del = (p: string) => request<void>(p, {method: "DELETE"});
+export const post = <T>(p: string, b: unknown) => request<T>(p, {method: "POST", body: JSON.stringify(b)});
+export const put = <T>(p: string, b: unknown) => request<T>(p, {method: "PUT", body: JSON.stringify(b)});
+export const get = <T>(p: string) => request<T>(p, {method: "GET"});
+export const del = (p: string) => request<void>(p, {method: "DELETE"});
 
 export function makeCrud<T, CreateDto, UpdateDto>(resource : string) {
     return {
