@@ -7,7 +7,7 @@ export interface CreatePlatformRequest{
     tx_power_dbm: Number;
     antenna_height_m: Number;
 }
-export interface UpdateAdminRequest extends CreatePlatformRequest {}
+export interface UpdatePlatformRequest extends CreatePlatformRequest {}
 
 export interface Platform {
     id: string;
