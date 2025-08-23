@@ -1,30 +1,13 @@
-import type { CreateUserRequest, UpdateUserRequest } from "@/interfaces/UserInterface"
+import type { CreateUserRequest, UpdateUserRequest, User } from "@/interfaces/UserInterface";
 
-const BASE_URL = "http://localhost:8000";
+const BASE_URL = import.meta.env.VITE_API_URL ?? "http://localhost:8000";
 
-async function post(path: string, body: any): Promise<void> {
-    const res = await fetch(`${BASE_URL}${path}`, {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify(body)
-    });
-    if (!res.ok) {
-        let message = res.statusText || "Request Failed";
-        try {
-            const data = await res.json();
-            if(data?.detail){
-                message = typeof data.detail === "string" ? data.detail : message;
-            }
-        } catch {}
-        throw new Error(message);
+export class HttpError extends Error {
+    status: number;
+    data?: unknown;
+    constructor(status: number, message: string, data?: unknown){
+        super(message);
+        this.status = status;
+        this.data = data;
     }
-    return;
-}
-
-export function registerUser(dto:CreateUserRequest) :Promise<void> {
-    return post("/users", dto);
-}
-
-export function loginByPersonalId(personal_id:string) :Promise<void> {
-    return post("/users/login", {personal_id});
 }
