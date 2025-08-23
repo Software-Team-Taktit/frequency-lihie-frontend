@@ -10,9 +10,9 @@ import {
 } from "../ui/dialog";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { loginByPersonalId } from "@/services/UserApi";
-import { HttpError } from "@/services/BaseApi";
-import type { UserLogInRequest } from "@/interfaces/UserInterface";
+import { loginByPersonalId } from "../../services/UserApi";
+import { HttpError } from "../../services/BaseApi";
+import type { UserLogInRequest } from "../../interfaces/UserInterface";
 
 function LogIn() {
     const [personalId, setPersonalId] = useState("");

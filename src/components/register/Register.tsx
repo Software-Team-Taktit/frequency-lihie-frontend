@@ -3,9 +3,16 @@ import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { UserApi } from "@/services/UserApi";
-import type { CreateUserRequest } from "@/interfaces/UserInterface";
-import { HttpError } from "@/services/BaseApi";
+import { UserApi } from "../../services/UserApi";
+import type { CreateUserRequest } from "../../interfaces/UserInterface";
+import { HttpError } from "../../services/BaseApi.ts";
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle
+} from "../ui/dialog";
 
 function Register() {
     const [form, setForm] = useState({
@@ -21,9 +28,8 @@ function Register() {
         lastName: "",
         unit: ""
     });
-
-    const [submitting, setSubmitting] = useState(false);
     const [serverErr, setServerErr] = useState<string>("");
+    const [showDialog, setShowDialog] = useState(false);
     const navigate = useNavigate();
 
     const validate = (): boolean => {
@@ -72,19 +78,24 @@ function Register() {
         };
 
         try{
-            setSubmitting(true);
             setServerErr("");
 
             const created = await UserApi.create(dto);
             console.log("registered: ", created);
 
             navigate("/home");
-        } catch (e:unknown){
+        } catch (e:any){
+            if(e.status === 409) {
+                setServerErr("כבר קיים משתמש עם המספר האישי הזה!");
+                setShowDialog(true);
+                form.personalId = "";
+                form.firstName = "";
+                form.lastName = "";
+                form.unit = "";
+            }
             const errObj = e as HttpError;
             setServerErr(errObj?.message || "שגיאה בהרשמה");
-        } finally {
-            setSubmitting(false);
-        }
+        } 
     }
 
     const fields: {
@@ -124,9 +135,24 @@ function Register() {
                         </div>
                     ))}
 
-                    <Button className="hover:text-blue-600 w-full mt-4 text-lg huninn-regular shadow-md " onClick={handleSubmit} disabled = {submitting}>
-                        {submitting ? "הרשמה" : "נרשם..."}
+                    <Button className="hover:text-blue-600 w-full mt-4 text-lg huninn-regular shadow-md " onClick={handleSubmit}>
+                        הרשמה
                     </Button>
+
+
+
+
+                    <Dialog open={showDialog} onOpenChange={setShowDialog}>
+                        <DialogContent className="bg-gray-600 border border-black">
+                            <DialogHeader>
+                                <DialogTitle>קיים משתמש עם מספר אישי זה!</DialogTitle>
+                                <DialogDescription>
+                                    נסו שוב עם מספר אישי אחר, או התחברי אם כבר יש לך חשבון.
+                                </DialogDescription>
+                            </DialogHeader>
+                            <Button onClick={() => setShowDialog(false)} className="hover:text-blue-900 border border-black">נסו שוב</Button>
+                        </DialogContent>
+                    </Dialog>
                 </div>
             </div>
         </main>
