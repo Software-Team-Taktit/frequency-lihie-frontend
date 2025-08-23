@@ -3,32 +3,36 @@ import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-
+import { UserApi } from "@/services/UserApi";
+import type { CreateUserRequest } from "@/interfaces/UserInterface";
+import { HttpError } from "@/services/BaseApi";
 
 function Register() {
     const [form, setForm] = useState({
         personalId: "",
-        unit: "",
         firstName: "",
-        lastName: ""
+        lastName: "",
+        unit: ""
     });
 
     let [err, setErr] = useState({
         personalId: "",
-        unit: "",
         firstName: "",
-        lastName: ""
+        lastName: "",
+        unit: ""
     });
 
+    const [submitting, setSubmitting] = useState(false);
+    const [serverErr, setServerErr] = useState<string>("");
     const navigate = useNavigate();
 
     const validate = (): boolean => {
         let valid = true;
         const tmp = {
             personalId: "",
-            unit: "",
             firstName: "",
-            lastName: ""
+            lastName: "",
+            unit: ""
         };
 
         if(!/^\d{7}$/.test(form.personalId)){
@@ -52,13 +56,34 @@ function Register() {
     };
 
     const handleChange = (key: keyof typeof form, value: string) => {
-        setForm({ ...form, [key]: value });
+        setForm((p) => ({ ...p, [key]: value }));
+        if (err[key]) setErr((e) => ({ ...e, [key]: "" }));  
+        if (serverErr) setServerErr("");  
     };
 
-    const handleSubmit = () => {
-        if(validate()){
-            console.log("✅ Registered: ", form);
+    const handleSubmit = async () => {
+        if(!validate()) return;
+
+        const dto: CreateUserRequest = {
+            personal_id: form.personalId.trim(),
+            first_name: form.firstName.trim(),
+            last_name: form.lastName.trim(),
+            unit: form.unit.trim()
+        };
+
+        try{
+            setSubmitting(true);
+            setServerErr("");
+
+            const created = await UserApi.create(dto);
+            console.log("registered: ", created);
+
             navigate("/home");
+        } catch (e:unknown){
+            const errObj = e as HttpError;
+            setServerErr(errObj?.message || "שגיאה בהרשמה");
+        } finally {
+            setSubmitting(false);
         }
     }
 
@@ -87,6 +112,7 @@ function Register() {
                                 {field.label}
                             </Label>
                             <Input
+                                className="rounded"
                                 id={field.key}
                                 value={form[field.key]}
                                 onChange={(e) => handleChange(field.key, e.target.value)}
@@ -98,8 +124,8 @@ function Register() {
                         </div>
                     ))}
 
-                    <Button className="hover:text-blue-600 w-full mt-4 text-lg huninn-regular shadow-md " onClick={handleSubmit}>
-                        הרשמה
+                    <Button className="hover:text-blue-600 w-full mt-4 text-lg huninn-regular shadow-md " onClick={handleSubmit} disabled = {submitting}>
+                        {submitting ? "הרשמה" : "נרשם..."}
                     </Button>
                 </div>
             </div>
