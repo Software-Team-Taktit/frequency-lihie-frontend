@@ -10,6 +10,9 @@ import {
 } from "../ui/dialog";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
+import { loginByPersonalId } from "@/services/UserApi";
+import { HttpError } from "@/services/BaseApi";
+import type { UserLogInRequest } from "@/interfaces/UserInterface";
 
 function LogIn() {
     const [personalId, setPersonalId] = useState("");
@@ -26,10 +29,23 @@ function LogIn() {
         return true;
     }
 
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
         const isValid = validatePersonalId();
-        if(isValid){
-            setShowDialog(true);
+        if (!isValid) return;
+
+        try{
+            const dto: UserLogInRequest = {
+                personal_id: personalId
+            }
+            const me = await loginByPersonalId(dto);
+            navigate("/home");
+        } catch(e) {
+            const err = e as HttpError;
+            if(err.status === 404) {
+                setShowDialog(true);
+            }else {
+                setErrData(err.message || "שגיאה בהתחברות");
+            }
         }
     };
 
@@ -51,6 +67,7 @@ function LogIn() {
                             מספר אישי:
                         </Label>
                         <Input
+                            className="rounded"
                             id="personalId"
                             type="text"
                             value={personalId}
