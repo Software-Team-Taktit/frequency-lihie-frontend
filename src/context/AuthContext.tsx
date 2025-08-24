@@ -1,5 +1,6 @@
-import React, {createContext, useContext, useState} from "react";
+import React, {createContext, useContext, useEffect, useState} from "react";
 import type {User} from "../interfaces/UserInterface";
+import {me as getMe, logout as apiLogout} from "../services/UserApi";
 
 type AuthState = {
     user: User | null;
@@ -12,8 +13,12 @@ const AuthCtx = createContext<AuthState | undefined>(undefined);
 export function AuthProvider({children}: {children: React.ReactNode}) {
     const [user, setUser] = useState<User | null>(null);
 
+    useEffect(() => {
+        getMe().then(setUser).catch(()=> setUser(null));
+    }, []);
+
     const logout = () => {
-        setUser(null);
+        void apiLogout().finally(()=> setUser(null));
     };
 
     return (
