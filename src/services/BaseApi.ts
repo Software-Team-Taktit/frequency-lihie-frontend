@@ -17,7 +17,8 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
             "Content-Type": "application/json",
             Accept: "application/json",
             ...(init.headers || {})
-        }
+        },
+        credentials: "include"
     });
 
     if (res.status === 204) {
