@@ -1,4 +1,4 @@
-import { makeCrud, post } from "./BaseApi";
+import { get, makeCrud, post } from "./BaseApi";
 import type {
     User,
     CreateUserRequest,
@@ -8,7 +8,15 @@ import type {
 
 export const UserApi = makeCrud<User, CreateUserRequest, UpdateUserRequest>("users");
 
-export function loginByPersonalId(dto: UserLogInRequest) {
-    return post<User>("/users/login", dto);
+export async function loginByPersonalId(dto: UserLogInRequest) {
+    const res = await post<{user: User}>("/users/login", dto);
+    return res.user;
 }
 
+export function logout(){
+    return post<void>("/users/logout", {});
+}
+
+export function me() {
+    return get<User>("/users/me");
+}
