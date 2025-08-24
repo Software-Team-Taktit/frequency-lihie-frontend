@@ -3,8 +3,9 @@ import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { UserApi } from "../../services/UserApi";
-import type { CreateUserRequest } from "../../interfaces/UserInterface";
+import { UserApi, loginByPersonalId } from "../../services/UserApi";
+import { useAuth } from "../../context/AuthContext.tsx";
+import type { CreateUserRequest, UserLogInRequest } from "../../interfaces/UserInterface";
 import { HttpError } from "../../services/BaseApi.ts";
 import {
     Dialog,
@@ -30,6 +31,7 @@ function Register() {
     });
     const [serverErr, setServerErr] = useState<string>("");
     const [showDialog, setShowDialog] = useState(false);
+    const {setUser} = useAuth();
     const navigate = useNavigate();
 
     const validate = (): boolean => {
@@ -79,10 +81,13 @@ function Register() {
 
         try{
             setServerErr("");
-
             const created = await UserApi.create(dto);
             console.log("registered: ", created);
-
+            const logInDto : UserLogInRequest = {
+                personal_id: created.personal_id
+            };
+            const me = await loginByPersonalId(logInDto);
+            setUser(me);
             navigate("/home");
         } catch (e:any){
             if(e.status === 409) {
@@ -151,6 +156,10 @@ function Register() {
                                 </DialogDescription>
                             </DialogHeader>
                             <Button onClick={() => setShowDialog(false)} className="hover:text-blue-900 border border-black">נסו שוב</Button>
+                            <Button onClick={() => {
+                                setShowDialog(false);
+                                navigate("/login");
+                            }} className="hover:text-blue-900 border border-black">מעבר להתחברות</Button>
                         </DialogContent>
                     </Dialog>
                 </div>

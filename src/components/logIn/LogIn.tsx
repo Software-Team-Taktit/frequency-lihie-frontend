@@ -9,15 +9,18 @@ import {
     DialogTitle
 } from "../ui/dialog";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import { useState } from "react";
 import { loginByPersonalId } from "../../services/UserApi";
 import { HttpError } from "../../services/BaseApi";
 import type { UserLogInRequest } from "../../interfaces/UserInterface";
 
+
 function LogIn() {
     const [personalId, setPersonalId] = useState("");
     let [errData, setErrData] = useState("");
     const [showDialog, setShowDialog] = useState(false);
+    const { setUser } = useAuth();
     const navigate = useNavigate();
 
     const validatePersonalId = () => {
@@ -38,6 +41,7 @@ function LogIn() {
                 personal_id: personalId
             }
             const me = await loginByPersonalId(dto);
+            setUser(me);
             navigate("/home");
         } catch(e) {
             const err = e as HttpError;
