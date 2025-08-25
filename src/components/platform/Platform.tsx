@@ -3,6 +3,8 @@ import { Button } from "../ui/button"
 import { Label } from "../ui/label";
 import { useNavigate } from "react-router-dom";
 import React, { useState } from "react";
+import { PlatformsApi } from "../../services/PlatformApi";
+import type { CreatePlatformRequest } from "@/interfaces/PlatformInterface";
 
 function Platform() {
 
@@ -92,20 +94,26 @@ function Platform() {
             if(err[key]) setErr(prev => ({ ...prev, [key]: "" }));
         };
 
-    const handleSubmit = (e : React.FormEvent) => {
+    const handleSubmit = async (e : React.FormEvent) => {
         e.preventDefault();
         
-        if(validatePlatform())
-        {
-            const next = {...platform};
-            (["frequency_mhz","bw_khz","tx_power_dbm","antenna_height_m"] as NumericKey[])
-            .forEach((key) => {
-                next[key] = Number(raw[key]);
-            });
-            setPlatform(next);
+        if (!validatePlatform()) return;
 
-            console.log("platform created!");
+        const dto: CreatePlatformRequest = {
+            name: platform.name.trim(),
+            frequency_mhz: Number(raw.frequency_mhz),
+            bw_khz: Number(raw.bw_khz),
+            tx_power_dbm: Number(raw.tx_power_dbm),
+            antenna_height_m: Number(raw.antenna_height_m)
+        };
+
+        try{
+            const created = await PlatformsApi.create(dto);
+            console.log("✅ Platform created:", created)
             navigate("/home");
+        } catch (err: any) {
+            console.error("❌ Error creating platform:", err);
+            alert("אירעה שגיאה ביצירת הפלטפורמה");
         }
     }
 
@@ -127,7 +135,7 @@ function Platform() {
             <div className="bg-blue-100 rounded-xl p-10 w-[1800px] h-[800px] mx-auto shadow-md flex items-center justify-center">
                 <div className="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-md space-y-6">
                     <h1 className="suez-one-regular text-6xl text-center text-blue-700">
-                        קליטת פלטפורמה
+                        הכנסת פלטפורמה
                     </h1>
 
                     <form onSubmit={handleSubmit} className="space-y-1">
@@ -138,6 +146,7 @@ function Platform() {
                                 </Label>
                                 {field.key === "name" ? (
                                     <Input
+                                    className="rounded"
                                     id={field.key as string}
                                     type="text"
                                     value={platform.name}
@@ -145,6 +154,7 @@ function Platform() {
                                     onChange={onChangeText}/>
                                 ): (
                                     <Input
+                                    className="rounded"
                                     id={field.key as string}
                                     type="text"
                                     inputMode="decimal"
@@ -158,7 +168,7 @@ function Platform() {
                             </div>
                         ))}
 
-                        <Button className="hover:text-blue-600 w-full text-lg huninn-regular shadow-md mt-6" onClick={handleSubmit}>
+                        <Button className="w-full text-lg huninn-regular shadow-md hover:text-blue-600" onClick={handleSubmit}>
                             יצירת פלטפורמה
                         </Button>
                         
