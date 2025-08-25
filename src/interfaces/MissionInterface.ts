@@ -17,6 +17,6 @@ export interface Mission {
 }
 
 export interface Coordinate {
-    lat: number;
-    lon: number;
+    latitude: number;
+    longitude: number;
 }

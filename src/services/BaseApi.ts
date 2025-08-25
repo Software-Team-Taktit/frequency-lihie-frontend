@@ -30,8 +30,12 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<T> {
     const data = isJson ? await res.json().catch(()=> null) : null;
 
     if(!res.ok){
-        const msg = (data?.detail && String((data as any).detail)) || res.statusText || "Request failed";
-        throw new HttpError(res.status, msg, data);
+        const message =
+        (data && typeof data === "object" && (data as any).detail)
+            ? JSON.stringify((data as any).detail)
+            : (typeof data === "string" && data) || res.statusText || "Request failed";
+        const err: HttpError = Object.assign(new Error(message), { status: res.status, data });
+        throw err;
     }
     return data as T;
 }

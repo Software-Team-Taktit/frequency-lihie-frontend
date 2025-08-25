@@ -17,6 +17,7 @@ function NavBar() {
                 <div className="text-2xl font-bold text-gray-800 dark:text-gray-100">
                     <Link to="/home" className="hover:text-blue-600 transition-all huninn-regular">מרחבים</Link>
                     <Link to="/platform" className="hover:text-blue-600 transition-all huninn-regular mr-5">פלטפורמה</Link>
+                    <Link to="/mission" className="hover:text-blue-600 transition-all huninn-regular mr-5">משימה</Link>
                 </div>
 
                 <div className="flex items-center space-x-4">
