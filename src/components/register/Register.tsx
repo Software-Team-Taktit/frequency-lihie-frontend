@@ -148,18 +148,18 @@ function Register() {
 
 
                     <Dialog open={showDialog} onOpenChange={setShowDialog}>
-                        <DialogContent className="bg-gray-600 border border-black">
+                        <DialogContent className="sm:max-w-[425px] rounded-xl bg-blue-100 border border-black">
                             <DialogHeader>
-                                <DialogTitle>קיים משתמש עם מספר אישי זה!</DialogTitle>
-                                <DialogDescription>
+                                <DialogTitle className="text-right huninn-regular">קיים משתמש עם מספר אישי זה!</DialogTitle>
+                                <DialogDescription className="text-right huninn-regular">
                                     נסו שוב עם מספר אישי אחר, או התחברי אם כבר יש לך חשבון.
                                 </DialogDescription>
                             </DialogHeader>
-                            <Button onClick={() => setShowDialog(false)} className="hover:text-blue-900 border border-black">נסו שוב</Button>
+                            <Button onClick={() => setShowDialog(false)} className="hover:text-blue-900 border rounded-xl text-right huninn-regular border-black">נסו שוב</Button>
                             <Button onClick={() => {
                                 setShowDialog(false);
                                 navigate("/login");
-                            }} className="hover:text-blue-900 border border-black">מעבר להתחברות</Button>
+                            }} className="hover:text-blue-900 border text-right huninn-regular rounded-xl border-black">מעבר להתחברות</Button>
                         </DialogContent>
                     </Dialog>
                 </div>

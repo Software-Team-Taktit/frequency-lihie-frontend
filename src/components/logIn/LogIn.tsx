@@ -88,15 +88,15 @@ function LogIn() {
                     </Button>
 
                     <Dialog open={showDialog} onOpenChange={setShowDialog}>
-                        <DialogContent className="bg-gray-600 border border-black">
+                        <DialogContent className="sm:max-w-[425px] rounded-xl bg-blue-100 border border-black">
                             <DialogHeader>
-                                <DialogTitle>חשבון לא נמצא!</DialogTitle>
-                                <DialogDescription>
+                                <DialogTitle className="text-right huninn-regular">חשבון לא נמצא!</DialogTitle>
+                                <DialogDescription className="text-right huninn-regular">
                                     אין לך חשבון אצלנו במערכת.
                                     תרצה ליצור חשבון חדש?
                                 </DialogDescription>
                             </DialogHeader>
-                            <Button onClick={handleCreateAccount} className="hover:text-blue-900 border border-black">יצירת חשבון חדש</Button>
+                            <Button onClick={handleCreateAccount} className="hover:text-blue-900 border rounded-xl text-right huninn-regular border-black">יצירת חשבון חדש</Button>
                         </DialogContent>
                     </Dialog>
                 </div>
