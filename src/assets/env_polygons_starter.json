@@ -1,0 +1,437 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "properties": {
+        "env_code": "dense_urban",
+        "label_he": "צפוף עירוני",
+        "city": "Tel_Aviv",
+        "priority": 1
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              34.72,
+              31.95
+            ],
+            [
+              34.9,
+              31.95
+            ],
+            [
+              34.9,
+              32.15
+            ],
+            [
+              34.72,
+              32.15
+            ],
+            [
+              34.72,
+              31.95
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "env_code": "dense_urban",
+        "label_he": "צפוף עירוני",
+        "city": "Jerusalem",
+        "priority": 1
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              35.15,
+              31.72
+            ],
+            [
+              35.25,
+              31.72
+            ],
+            [
+              35.25,
+              31.85
+            ],
+            [
+              35.15,
+              31.85
+            ],
+            [
+              35.15,
+              31.72
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "env_code": "dense_urban",
+        "label_he": "צפוף עירוני",
+        "city": "Haifa",
+        "priority": 1
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              34.95,
+              32.75
+            ],
+            [
+              35.1,
+              32.75
+            ],
+            [
+              35.1,
+              32.85
+            ],
+            [
+              34.95,
+              32.85
+            ],
+            [
+              34.95,
+              32.75
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "env_code": "dense_urban",
+        "label_he": "צפוף עירוני",
+        "city": "Beersheba",
+        "priority": 1
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              34.75,
+              31.21
+            ],
+            [
+              34.86,
+              31.21
+            ],
+            [
+              34.86,
+              31.29
+            ],
+            [
+              34.75,
+              31.29
+            ],
+            [
+              34.75,
+              31.21
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "env_code": "dense_urban",
+        "label_he": "צפוף עירוני",
+        "city": "Gaza_City",
+        "priority": 1
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              34.43,
+              31.48
+            ],
+            [
+              34.55,
+              31.48
+            ],
+            [
+              34.55,
+              31.58
+            ],
+            [
+              34.43,
+              31.58
+            ],
+            [
+              34.43,
+              31.48
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "env_code": "suburban",
+        "label_he": "פרברי",
+        "city": "Gush_Dan_Ring",
+        "priority": 2
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              34.6,
+              31.8
+            ],
+            [
+              35.0,
+              31.8
+            ],
+            [
+              35.0,
+              32.3
+            ],
+            [
+              34.6,
+              32.3
+            ],
+            [
+              34.6,
+              31.8
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "env_code": "suburban",
+        "label_he": "פרברי",
+        "city": "JLM_Ring",
+        "priority": 2
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              35.0,
+              31.6
+            ],
+            [
+              35.4,
+              31.6
+            ],
+            [
+              35.4,
+              31.95
+            ],
+            [
+              35.0,
+              31.95
+            ],
+            [
+              35.0,
+              31.6
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "env_code": "suburban",
+        "label_he": "פרברי",
+        "city": "Haifa_Ring",
+        "priority": 2
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              34.85,
+              32.6
+            ],
+            [
+              35.2,
+              32.6
+            ],
+            [
+              35.2,
+              33.0
+            ],
+            [
+              34.85,
+              33.0
+            ],
+            [
+              34.85,
+              32.6
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "env_code": "mountainous",
+        "label_he": "הררי",
+        "zone": "Judea_Samaria_Ridge",
+        "priority": 3
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              35.0,
+              31.3
+            ],
+            [
+              35.5,
+              31.3
+            ],
+            [
+              35.5,
+              32.2
+            ],
+            [
+              35.0,
+              32.2
+            ],
+            [
+              35.0,
+              31.3
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "env_code": "mountainous",
+        "label_he": "הררי",
+        "zone": "Northern_Highlands",
+        "priority": 3
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              35.0,
+              32.5
+            ],
+            [
+              35.7,
+              32.5
+            ],
+            [
+              35.7,
+              33.3
+            ],
+            [
+              35.0,
+              33.3
+            ],
+            [
+              35.0,
+              32.5
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "env_code": "rural_village",
+        "label_he": "כפרי",
+        "zone": "Coastal_Plain_Rural",
+        "priority": 4
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              34.6,
+              31.7
+            ],
+            [
+              34.95,
+              31.7
+            ],
+            [
+              34.95,
+              32.6
+            ],
+            [
+              34.6,
+              32.6
+            ],
+            [
+              34.6,
+              31.7
+            ]
+          ]
+        ]
+      }
+    },
+    {
+      "type": "Feature",
+      "properties": {
+        "env_code": "desert",
+        "label_he": "מדברי",
+        "zone": "Negev_Arava",
+        "priority": 5
+      },
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              34.25,
+              29.5
+            ],
+            [
+              35.5,
+              29.5
+            ],
+            [
+              35.5,
+              31.2
+            ],
+            [
+              34.25,
+              31.2
+            ],
+            [
+              34.25,
+              29.5
+            ]
+          ]
+        ]
+      }
+    }
+  ]
+}
