@@ -13,8 +13,8 @@ function Home() {
                         מערכת חכמה לניהול תדרים בשעת חירום המאפשרת הקצאה בזמן אמת לפי תנאים בשטח וצרכים מבצעיים.
                     </p>
                     <div className="flex justify-center gap-6 pt-6">
-                        <Button className="bg-blue-500 hover:bg-blue-200 text-white px-6 py-3 rounded-lg shadow-md text-lg huninn-regular transition duration-200" variant="outline" onClick={() => navigate("/logIn")}>התחברות</Button>
-                        <Button className="bg-blue-500 hover:bg-blue-200 text-white px-6 py-3 rounded-lg shadow-md text-lg huninn-regular transition duration-200" variant="outline" onClick={() => navigate("/register")}>הרשמה</Button>
+                        <Button className="bg-blue-500 hover:bg-blue-200 text-white px-6 py-3 rounded-lg shadow-md text-lg huninn-regular transition duration-200" variant="outline" onClick={() => navigate("/platform")}>פלטפורמות</Button>
+                        <Button className="bg-blue-500 hover:bg-blue-200 text-white px-6 py-3 rounded-lg shadow-md text-lg huninn-regular transition duration-200" variant="outline" onClick={() => navigate("/mission")}>משימות</Button>
                     </div>
                 </div>
             </div>
