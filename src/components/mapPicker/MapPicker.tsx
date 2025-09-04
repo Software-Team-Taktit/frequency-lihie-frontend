@@ -6,7 +6,7 @@ import unionBoundary from "../../assets/israel_palestine_union.json";
 import envPolys from "../../assets/env_polygons_starter.json";
 import { Button } from "../ui/button";
 
-type EnvPicker = { code: string; label: string; lat: number; lon: number };
+export type EnvPicker = { code: string; label: string; lat: number; lon: number };
 
 function ClickCatcher({ onClick }: { onClick: (lat: number, lon: number) => void }) {
     useMapEvents({
