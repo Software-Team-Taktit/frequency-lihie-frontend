@@ -42,22 +42,21 @@ function MapPicker({onPick, onClose}: {onPick:(picked: EnvPicker)=> void; onClos
             return;
         }
 
-        let result: {code: string, label: string} | null = null;
+        let picked: EnvPicker | null = null;
         for (const f of sortedEnv) {
             if(turf.booleanPointInPolygon(pt, f as any)) {
-                result = {
+                picked = {
                     code: String(f.properties?.env_code ?? ""),
-                    label: String(f.properties?.label_he ?? "")
+                    label: String(f.properties?.label_he ?? ""),
+                    lat, lon
                 };
                 break;
             }
         }
-        if(!result) {
-            // ברירת מחדל
-            result = { code: "rural_village", label: "כפרי" };
+        if(!picked){
+            picked = { code: "rural_village", label: "כפרי", lat, lon };
         }
-
-        onPick({...result, lat, lon});
+        onPick(picked);
         onClose();
     }
     return (
