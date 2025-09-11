@@ -1,5 +1,6 @@
 import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
+import 'leaflet/dist/leaflet.css';
 import { createBrowserRouter, RouterProvider } from 'react-router-dom';
 import Layout from './components/layout/Layout.tsx';
 import Register from './components/register/Register.tsx';

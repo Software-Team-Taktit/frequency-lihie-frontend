@@ -1,12 +1,14 @@
-import { MapContainer, TileLayer, GeoJSON, useMapEvents } from "react-leaflet";
+import { MapContainer, TileLayer, GeoJSON, useMapEvents, useMap } from "react-leaflet";
 import type { LeafletMouseEvent } from "leaflet";
-import "leaflet/dist/leaflet.css";
 import * as turf from "@turf/turf";
 import unionBoundary from "../../assets/israel_palestine_union.json";
 import envPolys from "../../assets/env_polygons_starter.json";
 import { Button } from "../ui/button";
+import { useEffect, useState } from "react";
+import 'leaflet/dist/leaflet.css';
 
 export type EnvPicker = { code: string; label: string; lat: number; lon: number };
+
 
 function ClickCatcher({ onClick }: { onClick: (lat: number, lon: number) => void }) {
     useMapEvents({
@@ -17,38 +19,94 @@ function ClickCatcher({ onClick }: { onClick: (lat: number, lon: number) => void
     return null;
 }
 
-function MapPicker({onPick, onClose}: {onPick:(picked: EnvPicker)=> void; onClose:()=>void;}) {
-    const unionFeatures = (unionBoundary as any)?.type === "FeatureCollection" ?
-        (unionBoundary as any)?.features :
-        [(unionBoundary as any)];
+function MapResizer() {
+    const map = useMap();
+    useEffect(() => {
+        const id = setTimeout(() => map.invalidateSize({ animate: true }), 0);
+        return () => clearTimeout(id);
+    }, [map]);
+    return null;
+}
 
-    const envFeatures: any[] = 
-        (envPolys as any)?.type === "FeatureCollection" ? 
-        (envPolys as any)?.features :
-        [(envPolys as any)];
+type PolyLike = GeoJSON.Feature<GeoJSON.Polygon | GeoJSON.MultiPolygon>;
+const isPolyLike = (f: any): f is PolyLike => {
+    const g = f?.type === "Feature" ? f.geometry : f?.geometry || f;
+    const t = g?.type;
+    return (
+        (t === "Polygon" || t === "MultiPolygon") &&
+        Array.isArray(g?.coordinates) &&
+        g.coordinates.length > 0
+    );
+};
+function normalizeToFeatures(input: any): GeoJSON.Feature[] {
+    if (!input) return [];
+    if (input.type === "FeatureCollection") return input.features as GeoJSON.Feature[];
+    if (input.type === "Feature") return [input as GeoJSON.Feature];
+    if (input.type === "GeometryCollection") {
+        return (input.geometries || [])
+            .filter((g: any) => g && (g.type === "Polygon" || g.type === "MultiPolygon"))
+            .map((g: any) => ({ type: "Feature", geometry: g, properties: {} } as GeoJSON.Feature));
+    }
+    if (input.type === "Polygon" || input.type === "MultiPolygon") {
+        return [{ type: "Feature", geometry: input, properties: {} } as GeoJSON.Feature];
+    }
+    return [];
+}
+
+
+function MapPicker({onPick, onClose}: {onPick:(picked: EnvPicker)=> void; onClose:()=>void;}) {
+    const [swapPointOrder, setSwapPointOrder] = useState(false);
+
+    const unionFeatures: PolyLike[] = normalizeToFeatures(unionBoundary as any).filter(isPolyLike);
+
+    const envFeatures: PolyLike[] = normalizeToFeatures(envPolys as any).filter(isPolyLike);
 
     const sortedEnv = envFeatures.slice().sort(
-        (a,b) => 
-        ((a.properties?.priority as number) ?? 999) - 
-        ((b.properties?.priority as number) ?? 999)
+    (a, b) =>
+        ((a.properties as any)?.priority ?? 999) - ((b.properties as any)?.priority ?? 999)
     );
+    
+
+    useEffect(() => {
+        const testLonLat = turf.point([35, 31.5]);   // lon,lat
+        const testLatLon = turf.point([31.5, 35]);   // lat,lon
+        const insideLonLat = unionFeatures.some(f => turf.booleanPointInPolygon(testLonLat, f as any));
+        const insideLatLon = unionFeatures.some(f => turf.booleanPointInPolygon(testLatLon, f as any));
+
+        if (!insideLonLat && insideLatLon) {
+            console.warn("⚠️ GeoJSON משתמש בסדר lat,lon — מחליפים");
+            setSwapPointOrder(true);
+        }
+    }, []);
 
     const handleClick = (lat: number, lon: number) => {
-        const pt = turf.point([lon,lat]);
+        const pt = turf.point(swapPointOrder ? [lat, lon] : [lon, lat]);
 
-        const inside = unionFeatures.some((f: any)=> turf.booleanPointInPolygon(pt, f as any));
-        if(!inside) {
+        const inside =
+        unionFeatures.length > 0 &&
+        unionFeatures.some((f) => {
+            try {
+                return turf.booleanPointInPolygon(pt, f as any);
+            } catch {
+                return false;
+            }
+        });
+
+        if (!inside) {
             alert("הנקודה מחוץ לתחום הארץ");
             return;
         }
 
+
         let picked: EnvPicker | null = null;
         for (const f of sortedEnv) {
             if(turf.booleanPointInPolygon(pt, f as any)) {
+                const props: any = f.properties ?? {};
                 picked = {
-                    code: String(f.properties?.env_code ?? ""),
-                    label: String(f.properties?.label_he ?? ""),
-                    lat, lon
+                    code: String(props.env_code ?? ""),
+                    label: String(props.label_he ?? ""),
+                    lat,
+                    lon,
                 };
                 break;
             }
@@ -68,7 +126,13 @@ function MapPicker({onPick, onClose}: {onPick:(picked: EnvPicker)=> void; onClos
                 </div>
                 <div className="flex-1">
                     <MapContainer center={[31.5,35]} zoom={7} style={{ height: "100%", width: "100%" }}>
-                        <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"/>
+                        <MapResizer/>
+                        <TileLayer url="https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png"
+                        attribution='&copy; OpenStreetMap contributors, Tiles: HOT'
+                        eventHandlers={{
+                            tileload: (e) => console.log("✅ tile loaded", e.coords),
+                            tileerror: (e) => console.log('❌ tile error', e)
+                        }}/>
                         <GeoJSON data={unionBoundary as any} style={{ color: "#111", weight: 2, fillOpacity: 0 }}/>
                         <GeoJSON data={envPolys as any} style={{ color: "#6b7280", weight: 1, fillOpacity: 0.15 }} />
                         <ClickCatcher onClick={handleClick}/>
