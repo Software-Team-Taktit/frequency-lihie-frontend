@@ -35,13 +35,23 @@ body{
   font-style: normal;
 }
 
+.leaflet-container img.leaflet-tile,
+.leaflet-container img.leaflet-image-layer {
+  max-width: none !important;
+  max-height: none !important;
+}
+.leaflet-container img { max-width: none !important; }
+
+.leaflet-container .leaflet-tile {
+  width: 256px !important;
+  height: 256px !important;
+}
+
 /* איפוס בסיסי */
 * {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  max-height: 100vh;
-  overflow: hidden;
 }
 
 /* הגדרות בסיסיות של Tailwind */

@@ -11,7 +11,7 @@ export function PlatformCard({
     onDelete: (p: Platform) => void;
 }) {
     return (
-        <Card className="hover:shadow-lg transition-shadow h-full flex flex-col">
+        <Card className="hover:shadow-lg transition-shadow h-full flex flex-col bg-white border-black">
             <CardHeader>
                 <CardTitle className="text-lg huninn-regular">{p.name}</CardTitle>
             </CardHeader>
