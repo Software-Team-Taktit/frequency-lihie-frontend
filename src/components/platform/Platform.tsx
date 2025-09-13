@@ -110,7 +110,7 @@ function Platform() {
         try{
             const created = await PlatformsApi.create(dto);
             console.log("✅ Platform created:", created)
-            navigate("/home");
+            navigate("/platform");
         } catch (err: any) {
             console.error("❌ Error creating platform:", err);
             alert("אירעה שגיאה ביצירת הפלטפורמה");
@@ -132,7 +132,7 @@ function Platform() {
 
     return (
         <main className="p-5">
-            <div className="bg-blue-100 rounded-xl p-10 w-[1800px] h-[800px] mx-auto shadow-md flex items-center justify-center">
+            <div className="bg-blue-100 rounded-xl p-10 md:p-10 w-[1800px] h-[750px] mx-auto shadow-md flex items-center justify-center">
                 <div className="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-md space-y-6">
                     <h1 className="suez-one-regular text-6xl text-center text-blue-700">
                         הכנסת פלטפורמה
@@ -168,7 +168,7 @@ function Platform() {
                             </div>
                         ))}
 
-                        <Button className="w-full text-lg huninn-regular shadow-md hover:text-blue-600" onClick={handleSubmit}>
+                        <Button className="w-full text-lg huninn-regular shadow-md  hover:text-blue-600" onClick={handleSubmit}>
                             יצירת פלטפורמה
                         </Button>
                         
