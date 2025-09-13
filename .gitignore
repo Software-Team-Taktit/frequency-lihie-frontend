@@ -12,7 +12,7 @@ dist
 dist-ssr
 *.local
 
-src/assets/tools/*.json
+src/assets/tools/cache/*.json
 
 # Editor directories and files
 .vscode/*
