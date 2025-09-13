@@ -16,6 +16,9 @@ function Mission() {
         platform_id: ""
     });
 
+    const [envLabel, setEnvLabel] = useState<string>("");
+    const [envCode, setEnvCode] = useState<string>("");
+
     type Coord = {lat: number | null, lon: number | null};
     const [coord, setCoord] = useState<Coord>({lat: null, lon: null});
 
@@ -51,8 +54,8 @@ function Mission() {
             platform_id: ""
         };
 
-        if(!mission.enviroment_type.trim()){
-            tmp.enviroment_type = "שדה חובה!";
+        if (!envLabel.trim()) {
+            tmp.enviroment_type = "בחר/י סוג סביבה מהמפה";
             valid = false;
         }
 
@@ -72,8 +75,8 @@ function Mission() {
     };
     
     const onChangeEnv = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setMission(p => ({ ...p, enviroment_type: e.target.value }));
-        if (err.enviroment_type) setErr(prev => ({ ...prev, enviroment_type: "" }));
+        setEnvLabel(e.target.value);
+        if (err.enviroment_type) setErr((prev) => ({ ...prev, enviroment_type: "" }));
     };
 
     const onChangePlatform = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -82,9 +85,12 @@ function Mission() {
     };
 
     const handlePickFromMap = (picked: EnvPicker) => {
-        setMission((p) => ({ ...p, enviroment_type: picked.code}));
+        setEnvLabel(picked.label);
+        setEnvCode(picked.code);
+        setMission((p) => ({ ...p, enviroment_type: picked.code }));
         setCoord({lat: picked.lat, lon: picked.lon});
         setErr((e) => ({ ...e, enviroment_type: "", lat: "", lon: "" }));
+        setShowPicker(false);
     }
 
     const handleSubmit = async (e:React.FormEvent) => {
@@ -94,7 +100,7 @@ function Mission() {
 
         const dto: CreateMissionRequest = {
             coordinate: {latitude: coord.lat!, longitude: coord.lon!},
-            enviroment_type: mission.enviroment_type.trim(),
+            enviroment_type: (envCode || mission.enviroment_type || "").trim(),
             platform_id: mission.platform_id
         };
         console.log("DTO sending: ", dto);
@@ -152,7 +158,7 @@ function Mission() {
                                 className="rounded flex-1"
                                 type="text"
                                 placeholder="נבחר אוטומטית מהמפה (ניתן לשינוי ידני)"
-                                value={mission.enviroment_type}
+                                value={envLabel} readOnly
                                 onChange={onChangeEnv}/>
                                 <Button type="button" onClick={()=> setShowPicker(true)}>בחירה מהמפה</Button>
                             </div>
