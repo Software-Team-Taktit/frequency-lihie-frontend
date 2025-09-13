@@ -6,7 +6,7 @@ function Home() {
 
     return (
         <main className="p-5">
-            <div className="bg-blue-100 rounded-xl p-10 w-[1800px] h-[800px] mx-auto shadow-md flex items-center justify-center">
+            <div className="bg-blue-100 rounded-xl p-10 md:p-10 w-[1800px] h-[750px] mx-auto shadow-md flex items-center justify-center">
                 <div className="bg-white p-10 rounded-2xl shadow-2xl text-center space-y-6 max-w-3xl w-full">
                     <h1 className="suez-one-regular text-8xl text-blue-700">ברוכים הבאים למרחבים</h1>
                     <p className="huninn-regular text-gray-700 text-2xl max-w-2xl mx-auto">
