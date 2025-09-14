@@ -5,7 +5,7 @@ import MissionForm from "./MissionForm";
 import { Button } from "../ui/button";
 import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { Dialog, DialogHeader, DialogTitle } from "../../components/ui/dialog";
+import { Dialog, DialogHeader, DialogTitle, DialogContent } from "../../components/ui/dialog";
 import { MissionsApi } from "../../services/MissionApi";
 
 function MissionGallery() {
@@ -40,20 +40,26 @@ function MissionGallery() {
                     <MissionCard key={m.id} m={m} onEdit={setEditing} onDelete={handleDelete}/>
                 ))}
             </section>
-            <Dialog open={!!editing} onOpenChange={(v)=> !v && setEditing(null)}>
-                <DialogHeader>
-                    <DialogTitle className="text-right font-bold text-2xl huninn-regular">עריכת משימה</DialogTitle>
-                </DialogHeader>
-                {editing && (
-                    <MissionForm
-                    mode="edit"
-                    initial={editing}
-                    onCancel={()=>setEditing(null)}
-                    onSaved={async () => {
-                        setEditing(null);
-                        await load();
-                    }}/>
-                )}
+            <Dialog open={!!editing} onOpenChange={(v) => !v && setEditing(null)}>
+                <DialogContent className="sm:max-w-[600px] rounded-2xl bg-blue-100 border border-black">
+                    <DialogHeader>
+                        <DialogTitle className="text-right font-bold text-2xl huninn-regular">
+                            עריכת משימה
+                        </DialogTitle>
+                    </DialogHeader>
+
+                    {editing && (
+                        <MissionForm
+                        mode="edit"
+                        initial={editing}
+                        onCancel={() => setEditing(null)}
+                        onSaved={async () => {
+                            setEditing(null);
+                            await load();
+                        }}
+                        />
+                    )}
+                </DialogContent>
             </Dialog>
         </div>
     )

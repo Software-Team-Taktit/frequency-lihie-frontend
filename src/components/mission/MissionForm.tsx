@@ -10,23 +10,20 @@ import { MissionsApi } from "../../services/MissionApi";
 
 import type { Platform } from "@/interfaces/PlatformInterface";
 import type { Mission } from "../../interfaces/MissionInterface";
-// אם יש לך גם UpdateMissionRequest/ CreateMissionRequest אפשר לייבא ולהחליף את any בהמשך
 
 export type MissionFormProps = {
   mode: "create" | "edit";
-  initial?: Mission;                 // חובה כשmode="edit"
-  onSaved?: (m: Mission) => void;    // נקרא כשנשמר בהצלחה
-  onCancel?: () => void;             // לביטול בדיאלוג
+  initial?: Mission;                
+  onSaved?: (m: Mission) => void;   
+  onCancel?: () => void;        
 };
 
 type Coord = { lat: number | null; lon: number | null };
 
 export default function MissionForm({ mode, initial, onSaved, onCancel }: MissionFormProps) {
-  // רשימת פלטפורמות לדרופדאון
   const [platforms, setPlatforms] = useState<Platform[]>([]);
   const [loadingPlatforms, setLoadingPlatforms] = useState(false);
 
-  // סטייטים של הטופס (זהים לאלה שב-Mission.tsx)
   const [mission, setMission] = useState({
     enviroment_type: initial?.enviroment_type ?? "",
     platform_id: initial?.platform_id ?? "",
@@ -46,7 +43,6 @@ export default function MissionForm({ mode, initial, onSaved, onCancel }: Missio
 
   const [showPicker, setShowPicker] = useState(false);
 
-  // אם initial משתנה (עריכה של רשומה אחרת), נאפס בהתאם
   useEffect(() => {
     if (mode === "edit" && initial) {
       setMission({
@@ -61,7 +57,6 @@ export default function MissionForm({ mode, initial, onSaved, onCancel }: Missio
     }
   }, [mode, initial]);
 
-  // טעינת פלטפורמות לדרופדאון
   useEffect(() => {
     (async () => {
       try {
@@ -79,7 +74,6 @@ export default function MissionForm({ mode, initial, onSaved, onCancel }: Missio
 
   const submitLabel = useMemo(() => (mode === "edit" ? "עדכון" : "יצירת משימה"), [mode]);
 
-  // === ולידציה (כמעט 1:1 מהעמוד שלך) ===
   const validate = (): boolean => {
     let valid = true;
     const tmp = { enviroment_type: "", lat: "", lon: "", platform_id: "" };
@@ -113,7 +107,6 @@ export default function MissionForm({ mode, initial, onSaved, onCancel }: Missio
     return valid;
   };
 
-  // === Handlers ===
   const onChangeEnv = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMission((p) => ({ ...p, enviroment_type: e.target.value }));
     if (err.enviroment_type) setErr((prev) => ({ ...prev, enviroment_type: "" }));
@@ -134,7 +127,6 @@ export default function MissionForm({ mode, initial, onSaved, onCancel }: Missio
     e.preventDefault();
     if (!validate()) return;
 
-    // אותו DTO כמו ב-Mission.tsx (יצירה)
     const dto: any = {
       coordinate: { latitude: coord.lat!, longitude: coord.lon! },
       enviroment_type: mission.enviroment_type.trim(),
@@ -144,15 +136,12 @@ export default function MissionForm({ mode, initial, onSaved, onCancel }: Missio
     try {
       let saved: Mission;
       if (mode === "edit" && initial) {
-        // עדכון משימה קיימת
         saved = await (MissionsApi as any).update(initial.id, dto);
       } else {
-        // יצירה חדשה
         saved = await MissionsApi.create(dto as any);
       }
       onSaved?.(saved);
     } catch (ex: any) {
-      // טיפול בשגיאות בדיוק כמו ב-Mission.tsx
       const next = { ...err };
       const detail = ex?.data?.detail;
       if (Array.isArray(detail)) {
@@ -171,7 +160,6 @@ export default function MissionForm({ mode, initial, onSaved, onCancel }: Missio
     }
   };
 
-  // === JSX של הטופס (זהה בסגנון ל-Mission.tsx, רק בלי קונטיינר דף/ניווט) ===
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
@@ -225,11 +213,11 @@ export default function MissionForm({ mode, initial, onSaved, onCancel }: Missio
 
       <div className="flex gap-2 justify-end pt-2">
         {onCancel && (
-          <Button type="button" variant="outline" onClick={onCancel} className="border-black">
+          <Button type="button" onClick={onCancel} className="hover:text-blue-900 border rounded-xl text-right huninn-regular border-black">
             ביטול
           </Button>
         )}
-        <Button className="hover:text-blue-600 text-lg huninn-regular shadow-md" type="submit">
+        <Button className="hover:text-blue-900 border rounded-xl text-right huninn-regular border-black" type="submit">
           {submitLabel}
         </Button>
       </div>

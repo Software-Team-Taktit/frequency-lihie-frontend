@@ -2,8 +2,8 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "../ui/card
 import { Button } from "../ui/button";
 import { Pencil, Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
-import { PlatformsApi } from "@/services/PlatformApi";
-import type { Mission } from "@/interfaces/MissionInterface";
+import { PlatformsApi } from "../../services/PlatformApi";
+import type { Mission } from "../../interfaces/MissionInterface";
 
 function MissionCard({m, onEdit, onDelete} : {
     m: Mission;
