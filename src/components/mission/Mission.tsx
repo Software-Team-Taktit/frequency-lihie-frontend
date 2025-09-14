@@ -101,7 +101,7 @@ function Mission() {
         try{
             const created = await MissionsApi.create(dto);
             console.log("✅ Mission created:", created);
-            navigate("/home");
+            navigate("/mission");
         } catch (ex: any){
             const next = {...err};
             const detail = ex?.data?.detail;
