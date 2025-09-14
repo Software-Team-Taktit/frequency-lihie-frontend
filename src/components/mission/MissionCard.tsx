@@ -11,17 +11,17 @@ function MissionCard({m, onEdit, onDelete} : {
     onDelete: (m: Mission) => void;
 }) {
     const [platformName, setPlatformName] = useState<string>("טוען...");
-    useEffect(() => {
-        async() => {
+    useEffect(()=>{
+        (async ()=>{
             try{
                 const p = await PlatformsApi.get(m.platform_id);
                 setPlatformName(p.name);
             } catch (e) {
-                setPlatformName("לא ידוע");
                 console.error(e);
+                setPlatformName("לא ידוע.");
             }
-        }
-    },[])
+        })();
+    }, [m.platform_id]);
     return (
         <Card className="hover:shadow-lg transition-shadow h-full flex flex-col bg-white border-black">
             <CardHeader>
