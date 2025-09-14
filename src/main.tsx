@@ -7,6 +7,7 @@ import Register from './components/register/Register.tsx';
 import LogIn from './components/logIn/LogIn.tsx';
 import Home from './components/home/Home.tsx';
 import PlatformGallery from './components/platform/PlatformGallery.tsx';
+import MissionGallery from './components/mission/MissionGallery.tsx';
 import Platform from './components/platform/Platform.tsx';
 import Mission from './components/mission/Mission.tsx';
 import { AuthProvider } from './context/AuthContext.tsx';
@@ -35,10 +36,13 @@ const router = createBrowserRouter([
       },
       {
         path: "mission",
-        element: <Mission/>
+        element: <MissionGallery/>
       },{
         path: "platformForm",
         element: <Platform/>
+      }, {
+        path: "missionForm",
+        element: <Mission/>
       }
     ]
   }
