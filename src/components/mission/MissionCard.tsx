@@ -21,7 +21,7 @@ function MissionCard({m, onEdit, onDelete} : {
                 console.error(e);
             }
         }
-    })
+    },[])
     return (
         <Card className="hover:shadow-lg transition-shadow h-full flex flex-col bg-white border-black">
             <CardHeader>
