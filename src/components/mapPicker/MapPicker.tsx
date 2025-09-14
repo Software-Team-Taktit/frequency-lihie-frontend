@@ -2,7 +2,7 @@ import { MapContainer, TileLayer, GeoJSON, useMapEvents, useMap } from "react-le
 import type { LeafletMouseEvent } from "leaflet";
 import * as turf from "@turf/turf";
 import unionBoundary from "../../assets/israel_palestine_union.json";
-import envPolys from "../../assets/env_polygons_starter.json";
+import envPolys from "../../assets/env_polygons_cities.json";
 import { Button } from "../ui/button";
 import { useEffect, useState } from "react";
 import 'leaflet/dist/leaflet.css';
@@ -61,10 +61,14 @@ function MapPicker({onPick, onClose}: {onPick:(picked: EnvPicker)=> void; onClos
 
     const envFeatures: PolyLike[] = normalizeToFeatures(envPolys as any).filter(isPolyLike);
 
-    const sortedEnv = envFeatures.slice().sort(
-    (a, b) =>
-        ((a.properties as any)?.priority ?? 999) - ((b.properties as any)?.priority ?? 999)
-    );
+    const areaKm2 = (f: PolyLike) => turf.area(f as any) / 1_000_000;
+
+    const sortedEnv = envFeatures.slice().sort((a, b) => {
+        const pa = ((a.properties as any)?.priority ?? 999);
+        const pb = ((b.properties as any)?.priority ?? 999);
+        if (pa !== pb) return pa - pb;
+        return areaKm2(a) - areaKm2(b);
+    });
     
 
     useEffect(() => {
@@ -134,7 +138,7 @@ function MapPicker({onPick, onClose}: {onPick:(picked: EnvPicker)=> void; onClos
                             tileerror: (e) => console.log('❌ tile error', e)
                         }}/>
                         <GeoJSON data={unionBoundary as any} style={{ color: "#111", weight: 2, fillOpacity: 0 }}/>
-                        <GeoJSON data={envPolys as any} style={{ color: "#6b7280", weight: 1, fillOpacity: 0.15 }} />
+                        <GeoJSON data={envPolys as any} filter={(f: any) => f?.geometry?.type !== 'Point'} style={{ color: "#6b7280", weight: 1, fillOpacity: 0.15 }} />
                         <ClickCatcher onClick={handleClick}/>
                     </MapContainer>
                 </div>
