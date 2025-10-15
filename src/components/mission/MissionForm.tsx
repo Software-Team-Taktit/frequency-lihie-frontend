@@ -25,6 +25,7 @@ export default function MissionForm({ mode, initial, onSaved, onCancel }: Missio
   const [loadingPlatforms, setLoadingPlatforms] = useState(false);
 
   const [mission, setMission] = useState({
+    name: initial?.name ?? "",
     enviroment_type: initial?.enviroment_type ?? "",
     platform_id: initial?.platform_id ?? "",
   });
@@ -35,6 +36,7 @@ export default function MissionForm({ mode, initial, onSaved, onCancel }: Missio
   });
 
   const [err, setErr] = useState({
+    name: "",
     enviroment_type: "",
     lat: "",
     lon: "",
@@ -46,6 +48,7 @@ export default function MissionForm({ mode, initial, onSaved, onCancel }: Missio
   useEffect(() => {
     if (mode === "edit" && initial) {
       setMission({
+        name: initial?.name ?? "",
         enviroment_type: initial.enviroment_type ?? "",
         platform_id: initial.platform_id ?? "",
       });
@@ -53,7 +56,7 @@ export default function MissionForm({ mode, initial, onSaved, onCancel }: Missio
         lat: initial.coordinate?.latitude ?? null,
         lon: initial.coordinate?.longitude ?? null,
       });
-      setErr({ enviroment_type: "", lat: "", lon: "", platform_id: "" });
+      setErr({ name: "", enviroment_type: "", lat: "", lon: "", platform_id: "" });
     }
   }, [mode, initial]);
 
@@ -76,7 +79,15 @@ export default function MissionForm({ mode, initial, onSaved, onCancel }: Missio
 
   const validate = (): boolean => {
     let valid = true;
-    const tmp = { enviroment_type: "", lat: "", lon: "", platform_id: "" };
+    const tmp = { name: "", enviroment_type: "", lat: "", lon: "", platform_id: "" };
+
+    if (!mission.name.trim()) {                
+      tmp.name = "שם משימה הוא שדה חובה";
+      valid = false;
+    } else if (mission.name.trim().length < 2) {
+      tmp.name = "שם המשימה צריך להכיל לפחות 2 תווים";
+      valid = false;
+    }
 
     if (!mission.enviroment_type.trim()) {
       tmp.enviroment_type = "שדה חובה!";
@@ -107,6 +118,11 @@ export default function MissionForm({ mode, initial, onSaved, onCancel }: Missio
     return valid;
   };
 
+  const onChangeName = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setMission((p) => ({ ...p, name: e.target.value }));
+    if (err.name) setErr((prev) => ({ ...prev, name: "" }));
+  };
+
   const onChangeEnv = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMission((p) => ({ ...p, enviroment_type: e.target.value }));
     if (err.enviroment_type) setErr((prev) => ({ ...prev, enviroment_type: "" }));
@@ -128,6 +144,7 @@ export default function MissionForm({ mode, initial, onSaved, onCancel }: Missio
     if (!validate()) return;
 
     const dto: any = {
+      name: mission.name.trim(),
       coordinate: { latitude: coord.lat!, longitude: coord.lon! },
       enviroment_type: mission.enviroment_type.trim(),
       platform_id: mission.platform_id,
@@ -162,6 +179,12 @@ export default function MissionForm({ mode, initial, onSaved, onCancel }: Missio
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-2">
+        <Label htmlFor="name" className="huninn-regular text-lg text-gray-700">שם המשימה</Label>
+        <Input id="name" type="text" className="rounded flex-1" placeholder="הכנס שם משימה" value={mission.name} 
+        onChange={onChangeName}/>
+        {err.name && <p className="text-sm text-red-600">{err.name}</p>}
+      </div>
       <div className="space-y-2">
         <Label htmlFor="platform_id" className="huninn-regular text-lg text-gray-700">
           בחירת פלטפורמה
