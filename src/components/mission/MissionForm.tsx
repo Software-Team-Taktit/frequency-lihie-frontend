@@ -180,14 +180,14 @@ export default function MissionForm({ mode, initial, onSaved, onCancel }: Missio
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="name" className="huninn-regular text-lg text-gray-700">שם המשימה</Label>
+        <Label htmlFor="name" className="huninn-regular text-lg text-gray-700">שם המשימה:</Label>
         <Input id="name" type="text" className="rounded flex-1" placeholder="הכנס שם משימה" value={mission.name} 
         onChange={onChangeName}/>
         {err.name && <p className="text-sm text-red-600">{err.name}</p>}
       </div>
       <div className="space-y-2">
         <Label htmlFor="platform_id" className="huninn-regular text-lg text-gray-700">
-          בחירת פלטפורמה
+          בחירת פלטפורמה:
         </Label>
         <select
           id="platform_id"

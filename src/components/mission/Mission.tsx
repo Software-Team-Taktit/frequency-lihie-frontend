@@ -153,13 +153,13 @@ function Mission() {
 
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="space-y-2">
-                            <Label htmlFor="name" className="huninn-regular text-lg text-gray-700">שם המשימה</Label>
+                            <Label htmlFor="name" className="huninn-regular text-lg text-gray-700">שם המשימה:</Label>
                             <Input id="name" className="rounded flex-1" type="text" placeholder="הכנס שם משימה"
                             value={mission.name} onChange={onChangeName}/>
                             {err.name && <p className="text-sm text-red-600">{err.name}</p>}
                         </div>
                         <div className="space-y-2">
-                            <Label htmlFor="platform_id" className="huninn-regular text-lg text-gray-700">בחירת פלטפורמה</Label>
+                            <Label htmlFor="platform_id" className="huninn-regular text-lg text-gray-700">בחירת פלטפורמה:</Label>
                             <select id="platform_id" className="w-full rounded border border-gray-300 p-2" value={mission.platform_id} onChange={onChangePlatform}>
                                 <option value="">בחר פלטפורמה...</option>
                                 {
