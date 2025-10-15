@@ -57,17 +57,14 @@ function PlatformGallery() {
                 <h1 className="suez-one-regular text-6xl text-center text-blue-700">פלטפורמות</h1>
                 <div className="grid grid-cols-3 items-center"></div>
             </div>
-            <section className="grid gap-6 grid-cols-1 w-[700px] sm:grid-cols-2 lg:grid-cols-3">
-                {
-                    items?.map((p:Platform) => (
+            <div className="flex-1 overflow-y-auto pr-2">
+                <section className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 auto-rows-max">
+                    {items?.map((p:Platform) => (
                         <PlatformCard
-                        key={p.id}
-                        p={p}
-                        onEdit={setEditing}
-                        onDelete={handleDelete}/>
-                    ))
-                }
-            </section>
+                        key={p.id} p={p} onEdit={setEditing} onDelete={handleDelete}/>
+                    ))}
+                </section>
+            </div>
             {
                 !items?.length && (
                     <div className="huninn-regular">אין פלטפורמות עדיין.</div>
