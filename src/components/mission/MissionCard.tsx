@@ -25,7 +25,7 @@ function MissionCard({m, onEdit, onDelete} : {
     return (
         <Card className="hover:shadow-lg transition-shadow h-full flex flex-col bg-white border-black">
             <CardHeader>
-                <CardTitle className="text-lg huninn-regular">{m.type}</CardTitle>
+                <CardTitle className="text-lg huninn-regular">{m.name || "משימה"}</CardTitle>
             </CardHeader>
             <CardContent className="text-sm space-y-2 ">
                 <div>סוג הסביבה: <span className="huninn-regular">{m.enviroment_type}</span></div>
