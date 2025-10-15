@@ -12,6 +12,7 @@ import type {EnvPicker} from "../mapPicker/MapPicker";
 
 function Mission() {
     const [mission, setMission] = useState({
+        name: "",
         enviroment_type: "",
         platform_id: ""
     });
@@ -23,6 +24,7 @@ function Mission() {
     const [coord, setCoord] = useState<Coord>({lat: null, lon: null});
 
     const [err, setErr] = useState({
+        name: "",
         enviroment_type: "",
         lat: "",
         lon: "",
@@ -48,11 +50,20 @@ function Mission() {
     const validateMission = () : boolean => {
         let valid = true;
         const tmp = {
+            name: "",
             enviroment_type: "",
             lat: "",
             lon: "",
             platform_id: ""
         };
+
+        if(!mission.name.trim()){
+            tmp.name = "שם משימה הוא שדה חובה";
+            valid = false;
+        } else if (mission.name.trim().length < 2) {
+            tmp.name = "שם משימה צריך להכיל לפחות 2 תווים";
+            valid = false;
+        }
 
         if (!envLabel.trim()) {
             tmp.enviroment_type = "בחר/י סוג סביבה מהמפה";
@@ -72,6 +83,11 @@ function Mission() {
 
         setErr(tmp);
         return valid;
+    };
+
+    const onChangeName = (e: React.ChangeEvent<HTMLInputElement>) => {
+        setMission(p => ({ ...p, name: e.target.value }));
+        if (err.name) setErr(prev => ({ ...prev, name: "" }));
     };
     
     const onChangeEnv = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -99,6 +115,7 @@ function Mission() {
         if(!validateMission()) return;
 
         const dto: CreateMissionRequest = {
+            name: mission.name.trim(),
             coordinate: {latitude: coord.lat!, longitude: coord.lon!},
             enviroment_type: (envCode || mission.enviroment_type || "").trim(),
             platform_id: mission.platform_id
@@ -135,6 +152,12 @@ function Mission() {
                     <h1 className="suez-one-regular text-6xl text-center text-blue-700">קליטת משימה</h1>
 
                     <form onSubmit={handleSubmit} className="space-y-4">
+                        <div className="space-y-2">
+                            <Label htmlFor="name" className="huninn-regular text-lg text-gray-700">שם המשימה</Label>
+                            <Input id="name" className="rounded flex-1" type="text" placeholder="הכנס שם משימה"
+                            value={mission.name} onChange={onChangeName}/>
+                            {err.name && <p className="text-sm text-red-600">{err.name}</p>}
+                        </div>
                         <div className="space-y-2">
                             <Label htmlFor="platform_id" className="huninn-regular text-lg text-gray-700">בחירת פלטפורמה</Label>
                             <select id="platform_id" className="w-full rounded border border-gray-300 p-2" value={mission.platform_id} onChange={onChangePlatform}>
