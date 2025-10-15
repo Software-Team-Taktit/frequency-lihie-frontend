@@ -1,6 +1,7 @@
 import { useAuth } from '../../context/AuthContext.tsx';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '../ui/button';
+import merhavim_logo from "../../assets/merhavim_logo.png";
 
 function NavBar() {
     const navigate = useNavigate();
@@ -14,10 +15,14 @@ function NavBar() {
     return (
         <header className="bg-white dark:bg-gray-900 shadow-md">
             <nav className="h-16 w-full flex justify-between items-center px-6">
-                <div className="text-2xl font-bold text-gray-800 dark:text-gray-100">
-                    <Link to="/home" className="hover:text-blue-600 transition-all huninn-regular">מרחבים</Link>
-                    <Link to="/platform" className="hover:text-blue-600 transition-all huninn-regular mr-5">פלטפורמה</Link>
-                    <Link to="/mission" className="hover:text-blue-600 transition-all huninn-regular mr-5">משימה</Link>
+                <div className="text-2xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-6">
+                    <Link to="/home" className="flex items-center">
+                        <img src={merhavim_logo} alt='מרחבים לוגו' className='h-[70px] w-[150px] object-contain '/>
+                    </Link>
+                    <div className="flex items-center gap-4 ">
+                        <Link to="/platform" className="hover:text-blue-600 transition-all huninn-regular mr-5">פלטפורמה</Link>
+                        <Link to="/mission" className="hover:text-blue-600 transition-all huninn-regular mr-5">משימה</Link>
+                    </div>
                 </div>
 
                 <div className="flex items-center space-x-4">
