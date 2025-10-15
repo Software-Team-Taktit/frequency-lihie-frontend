@@ -13,13 +13,13 @@ export function PlatformCard({
     return (
         <Card className="hover:shadow-lg transition-shadow h-full flex flex-col bg-white border-black">
             <CardHeader>
-                <CardTitle className="text-lg huninn-regular">{p.name}</CardTitle>
+                <CardTitle className="text-2xl huninn-bold">{p.name}</CardTitle>
             </CardHeader>
             <CardContent className="text-sm space-y-2 ">
-                <div>תדר (MHz): <span className="huninn-regular">{p.frequency_mhz}</span></div>
-                <div>רוחב פס (kHz): <span className="huninn-regular">{p.bw_khz}</span></div>
-                <div>עוצמת שידור (dBm): <span className="huninn-regular">{p.tx_power_dbm}</span></div>
-                <div>גובה אנטנה (m): <span className="huninn-regular">{p.antenna_height_m}</span></div>
+                <div><strong className="huninn-bold">תדר (MHz): </strong><span className="huninn-regular">{p.frequency_mhz}</span></div>
+                <div><strong className="huninn-bold">רוחב פס (kHz): </strong><span className="huninn-regular">{p.bw_khz}</span></div>
+                <div><strong className="huninn-bold">עוצמת שידור (dBm): </strong><span className="huninn-regular">{p.tx_power_dbm}</span></div>
+                <div><strong className="huninn-bold">גובה אנטנה (m):</strong><span className="huninn-regular">{p.antenna_height_m}</span></div>
             </CardContent>
             <CardFooter className="mt-auto flex justify-end gap-2">
                 <Button size="sm" variant="outline" onClick={() => onEdit(p)}>

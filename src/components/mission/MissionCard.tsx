@@ -25,12 +25,12 @@ function MissionCard({m, onEdit, onDelete} : {
     return (
         <Card className="hover:shadow-lg transition-shadow h-full flex flex-col bg-white border-black">
             <CardHeader>
-                <CardTitle className="text-lg huninn-regular">{m.name || "משימה"}</CardTitle>
+                <CardTitle className="text-2xl huninn-bold">{m.name || "משימה"}</CardTitle>
             </CardHeader>
             <CardContent className="text-sm space-y-2 ">
-                <div>סוג הסביבה: <span className="huninn-regular">{m.enviroment_type}</span></div>
-                <div>נקודת ציון: <span className="huninn-regular"> lat - {m.coordinate.latitude}, lon - {m.coordinate.longitude}</span></div>
-                <div>שם הפלטפורמה המשויכת: <span className="huninn-regular">{platformName}</span></div>
+                <div><strong className="huninn-bold">סוג הסביבה: </strong> <span className="huninn-regular">{m.enviroment_type}</span></div>
+                <div><strong className="huninn-bold">נקודת ציון: </strong><span className="huninn-regular"> lat - {m.coordinate.latitude}, lon - {m.coordinate.longitude}</span></div>
+                <div><strong className="huninn-bold">שם הפלטפורמה המשויכת: </strong><span className="huninn-regular">{platformName}</span></div>
             </CardContent>
             <CardFooter className="mt-auto flex justify-end gap-2">
                 <Button size="sm" variant="outline" onClick={() => onEdit(m)}>
