@@ -1,6 +1,6 @@
 import React, {createContext, useContext, useEffect, useState} from "react";
 import type {User} from "../interfaces/UserInterface";
-import {me as getMe, logout as apiLogout} from "../services/UserApi";
+import {me as getMe, logout as apiLogout, refresh as apiRefresh} from "../services/UserApi";
 
 type AuthState = {
     user: User | null;
@@ -14,7 +14,10 @@ export function AuthProvider({children}: {children: React.ReactNode}) {
     const [user, setUser] = useState<User | null>(null);
 
     useEffect(() => {
-        getMe().then(setUser).catch(()=> setUser(null));
+        (async () => {
+            try { await apiRefresh(); } catch { }
+            try { setUser(await getMe()); } catch { setUser(null); }
+        })();
     }, []);
 
     const logout = () => {
