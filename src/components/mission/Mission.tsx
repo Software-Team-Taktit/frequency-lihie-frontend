@@ -197,9 +197,14 @@ function Mission() {
                                 placeholder="נבחר אוטומטית מהמפה (ניתן לשינוי ידני)"
                                 value={envLabel} 
                                 onChange={onChangeEnv}/>
-                                <Button type="button" onClick={()=> setShowPicker(true)}>בחירה מהמפה</Button>
+                                <Button className="huninn-regular" type="button" onClick={()=> setShowPicker(true)}>בחירה מהמפה</Button>
                             </div>
                             {err.enviroment_type && <p className="text-sm text-red-600">{err.enviroment_type}</p>}
+                        </div>
+                        <div className="flex items-center space-x-2 dir-rtl">
+                                <Input type="checkbox" id="isIndoor" checked= {isIndoor} onChange={onChangeIndoor} 
+                                className="h-4 w-4 text-blue-600 border-gray-300 rounded ml-2"/>
+                                <Label htmlFor="isIndoor" className="huninn-regular text-lg text-gray-700">המשימה מתבצעת בתוך מבנה?</Label>
                         </div>
                         <div className="space-y-1">
                             <Label className="huninn-regular text-lg text-gray-700">נקודת הציון שנבחרה:</Label>
