@@ -9,6 +9,7 @@ import type { CreateMissionRequest } from "../../interfaces/MissionInterface";
 import type { Platform } from "@/interfaces/PlatformInterface";
 import MapPicker from "../mapPicker/MapPicker"; 
 import type {EnvPicker} from "../mapPicker/MapPicker";
+import type { MapCodetype, EnvType } from "../../interfaces/MissionInterface";
 
 function Mission() {
     const [mission, setMission] = useState({
@@ -19,6 +20,7 @@ function Mission() {
 
     const [envLabel, setEnvLabel] = useState<string>("");
     const [envCode, setEnvCode] = useState<string>("");
+    const [isIndoor, setIsIndoor] = useState(false);
 
     type Coord = {lat: number | null, lon: number | null};
     const [coord, setCoord] = useState<Coord>({lat: null, lon: null});
@@ -85,6 +87,12 @@ function Mission() {
         return valid;
     };
 
+    const calculateEnvType = (mapCode: MapCodetype, indoor: boolean): EnvType => {
+        if (indoor) return "indoor";
+        if (["very_dense_urban", "dense_urban", "urban"].includes(mapCode)) return "urban";
+        return "open_space";
+    }
+
     const onChangeName = (e: React.ChangeEvent<HTMLInputElement>) => {
         setMission(p => ({ ...p, name: e.target.value }));
         if (err.name) setErr(prev => ({ ...prev, name: "" }));
@@ -98,6 +106,10 @@ function Mission() {
     const onChangePlatform = (e: React.ChangeEvent<HTMLSelectElement>) => {
         setMission(p => ({ ...p, platform_id: e.target.value }));
         if (err.platform_id) setErr(prev => ({ ...prev, platform_id: "" }));
+    };
+
+    const onChangeIndoor = (e: React.ChangeEvent<HTMLInputElement>) => { 
+        setIsIndoor(e.target.checked);
     };
 
     const handlePickFromMap = (picked: EnvPicker) => {
@@ -114,10 +126,12 @@ function Mission() {
         
         if(!validateMission()) return;
 
+        const finalEnvType = calculateEnvType(envCode as MapCodetype || mission.enviroment_type as MapCodetype, isIndoor)
+
         const dto: CreateMissionRequest = {
             name: mission.name.trim(),
             coordinate: {latitude: coord.lat!, longitude: coord.lon!},
-            enviroment_type: (envCode || mission.enviroment_type || "").trim(),
+            enviroment_type: finalEnvType,
             platform_id: mission.platform_id
         };
         console.log("DTO sending: ", dto);
