@@ -181,7 +181,7 @@ function Mission() {
                                 className="rounded flex-1"
                                 type="text"
                                 placeholder="נבחר אוטומטית מהמפה (ניתן לשינוי ידני)"
-                                value={envLabel} readOnly
+                                value={envLabel} 
                                 onChange={onChangeEnv}/>
                                 <Button type="button" onClick={()=> setShowPicker(true)}>בחירה מהמפה</Button>
                             </div>
