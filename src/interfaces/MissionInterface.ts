@@ -1,5 +1,16 @@
 import type { UserType } from "./UserInterface";
 
+export type EnvType = "indoor" | "urban" | "open_space";
+
+export const MAP_CODES = [
+    "very_dense_urban",
+    "dense_urban",
+    "urban",
+    "suburban",
+    "rural_village",
+] as const;
+export type MapCodetype = typeof MAP_CODES[number];
+
 export interface CreateMissionRequest {
     name: string;
     coordinate: Coordinate;
