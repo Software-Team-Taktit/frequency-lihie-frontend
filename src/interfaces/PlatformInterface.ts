@@ -1,20 +1,37 @@
-import type { UserType } from "./UserInterface";
-
 export interface CreatePlatformRequest{
     name: string;
-    frequency_mhz: Number;
-    bw_khz: Number;
-    tx_power_dbm: Number;
-    antenna_height_m: Number;
+    tx_gain: number;
+    rx_gain: number;
+
+    //optional
+    bw_khz? : number;
+    tx_height_m? : number;
+    rx_height_m? : number;
+    min_sinr_required_db? : number;
+    noise_figure_db? : number;
 }
-export interface UpdatePlatformRequest extends CreatePlatformRequest {}
+export interface UpdatePlatformRequest {
+    // all optional because its update
+    name?: string;
+    bw_khz?: number;
+    tx_gain?: number;
+    tx_height_m?: number;
+    rx_gain?: number;
+    rx_height_m?: number;
+    min_sinr_required_db?: number;
+    noise_figure_db?: number;
+}
 
 export interface Platform {
+    // an object we get from the backend
     id: string;
-    readonly type: UserType;
+    readonly type: "platform";
     name: string;
-    frequency_mhz: number;
     bw_khz: number;
-    tx_power_dbm: number;
-    antenna_height_m: number;
+    tx_gain: number;
+    tx_height_m: number;
+    rx_gain: number;
+    rx_height_m: number;
+    min_sinr_required_db: number;
+    noise_figure_db: number;
 }
