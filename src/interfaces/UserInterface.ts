@@ -1,5 +1,3 @@
-export type UserType = "user" | "admin" | "mission" | "platform";
-
 export interface CreateUserRequest {
     personal_id: string;
     first_name: string;
@@ -10,7 +8,7 @@ export interface UpdateUserRequest extends CreateUserRequest {}
 
 export interface User {
     id: string;
-    readonly type: UserType;
+    readonly type: "user";
     personal_id: string;
     first_name: string;
     last_name: string;

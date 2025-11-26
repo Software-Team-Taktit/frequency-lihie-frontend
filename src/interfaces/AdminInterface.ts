@@ -1,4 +1,4 @@
-import type { CreateUserRequest, UserType} from "./UserInterface";
+import type { CreateUserRequest } from "./UserInterface";
 
 export interface CreateAdminRequest extends CreateUserRequest {}
 
@@ -6,7 +6,7 @@ export interface UpdateAdminRequest extends CreateUserRequest {}
 
 export interface Admin {
     id: string;
-    readonly type: UserType;
+    readonly type: "admin";
     personal_id: string;
     first_name: string;
     last_name: string;
