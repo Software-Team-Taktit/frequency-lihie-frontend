@@ -1,7 +1,7 @@
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import { Label } from "../ui/label";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { PlatformsApi } from "../../services/PlatformApi";
 import { MissionsApi } from "../../services/MissionApi";
@@ -11,6 +11,12 @@ import MapPicker from "../mapPicker/MapPicker";
 import type {EnvPicker} from "../mapPicker/MapPicker";
 import type { MapCodetype, EnvType } from "../../interfaces/MissionInterface";
 
+const NEW_ENV_LABELS: Record<EnvType, string> = {
+    indoor: "בתוך מבנה (indoor)",
+    urban: "עירוני",
+    open_space: "שטח פתוח",
+};
+
 function Mission() {
     const [mission, setMission] = useState({
         name: "",
@@ -18,7 +24,7 @@ function Mission() {
         platform_id: ""
     });
 
-    const [envLabel, setEnvLabel] = useState<string>("");
+    const [, setEnvLabel] = useState<string>("");
     const [envCode, setEnvCode] = useState<string>("");
     const [isIndoor, setIsIndoor] = useState(false);
 
@@ -49,6 +55,28 @@ function Mission() {
         })();
     }, []) ;
 
+    const calculateEnvType = (mapCode: MapCodetype, indoor: boolean): EnvType => {
+        const normalizedMapCode = mapCode as MapCodetype;
+        if (indoor) return "indoor";
+        if (["very_dense_urban", "dense_urban", "urban"].includes(normalizedMapCode)) return "urban";
+        return "open_space";
+    }
+
+    const finalEnvType = useMemo<EnvType | undefined>(() => {
+        if (!envCode && !isIndoor) {
+            return undefined;
+        }
+        return calculateEnvType(envCode as MapCodetype, isIndoor);
+    }, [envCode, isIndoor]);
+
+
+    const finalEnvLabel = useMemo<string>(() => {
+        if (!finalEnvType) {
+            return ""; 
+        }
+        return NEW_ENV_LABELS[finalEnvType] || "סביבה לא מזוהה";
+    }, [finalEnvType]);
+
     const validateMission = () : boolean => {
         let valid = true;
         const tmp = {
@@ -67,8 +95,8 @@ function Mission() {
             valid = false;
         }
 
-        if (!envLabel.trim()) {
-            tmp.enviroment_type = "בחר/י סוג סביבה מהמפה";
+        if (!finalEnvType) {
+            tmp.enviroment_type = "בחר/י נקודה על המפה ו/או סמן/י 'בתוך מבנה'";
             valid = false;
         }
 
@@ -86,12 +114,6 @@ function Mission() {
         setErr(tmp);
         return valid;
     };
-
-    const calculateEnvType = (mapCode: MapCodetype, indoor: boolean): EnvType => {
-        if (indoor) return "indoor";
-        if (["very_dense_urban", "dense_urban", "urban"].includes(mapCode)) return "urban";
-        return "open_space";
-    }
 
     const onChangeName = (e: React.ChangeEvent<HTMLInputElement>) => {
         setMission(p => ({ ...p, name: e.target.value }));
@@ -113,9 +135,7 @@ function Mission() {
     };
 
     const handlePickFromMap = (picked: EnvPicker) => {
-        setEnvLabel(picked.label);
         setEnvCode(picked.code);
-        setMission((p) => ({ ...p, enviroment_type: picked.code }));
         setCoord({lat: picked.lat, lon: picked.lon});
         setErr((e) => ({ ...e, enviroment_type: "", lat: "", lon: "" }));
         setShowPicker(false);
@@ -126,12 +146,10 @@ function Mission() {
         
         if(!validateMission()) return;
 
-        const finalEnvType = calculateEnvType(envCode as MapCodetype || mission.enviroment_type as MapCodetype, isIndoor)
-
         const dto: CreateMissionRequest = {
             name: mission.name.trim(),
             coordinate: {latitude: coord.lat!, longitude: coord.lon!},
-            enviroment_type: finalEnvType,
+            enviroment_type: finalEnvType!,
             platform_id: mission.platform_id
         };
         console.log("DTO sending: ", dto);
@@ -195,7 +213,7 @@ function Mission() {
                                 className="rounded flex-1"
                                 type="text"
                                 placeholder="נבחר אוטומטית מהמפה (ניתן לשינוי ידני)"
-                                value={envLabel} 
+                                value={finalEnvLabel} 
                                 onChange={onChangeEnv}/>
                                 <Button className="huninn-regular" type="button" onClick={()=> setShowPicker(true)}>בחירה מהמפה</Button>
                             </div>

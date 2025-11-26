@@ -14,7 +14,7 @@ export type MapCodetype = typeof MAP_CODES[number];
 export interface CreateMissionRequest {
     name: string;
     coordinate: Coordinate;
-    enviroment_type: string;  
+    enviroment_type: EnvType;  
     platform_id: string;
 }
 
@@ -25,7 +25,7 @@ export interface Mission {
     name: string;
     readonly type: UserType;
     coordinate: Coordinate;
-    enviroment_type: string;
+    enviroment_type: EnvType;
     platform_id: string;
 }
 

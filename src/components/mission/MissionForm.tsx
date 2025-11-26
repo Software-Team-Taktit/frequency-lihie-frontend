@@ -4,12 +4,27 @@ import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import MapPicker, { type EnvPicker } from "../mapPicker/MapPicker";
+import type { MapCodetype, EnvType, UpdateMissionRequest } from "../../interfaces/MissionInterface";
 
 import { PlatformsApi } from "../../services/PlatformApi";
 import { MissionsApi } from "../../services/MissionApi";
 
 import type { Platform } from "@/interfaces/PlatformInterface";
 import type { Mission } from "../../interfaces/MissionInterface";
+
+const NEW_ENV_LABELS: Record<EnvType, string> = {
+    indoor: "בתוך מבנה (indoor)",
+    urban: "עירוני",
+    open_space: "שטח פתוח",
+};
+
+const calculateEnvType = (mapCode: MapCodetype | string, indoor: boolean): EnvType => {
+    const code = mapCode || "";
+    
+    if (indoor) return "indoor";
+    if (["very_dense_urban", "dense_urban", "urban"].includes(code)) return "urban";
+    return "open_space";
+}
 
 export type MissionFormProps = {
   mode: "create" | "edit";
@@ -23,6 +38,13 @@ type Coord = { lat: number | null; lon: number | null };
 export default function MissionForm({ mode, initial, onSaved, onCancel }: MissionFormProps) {
   const [platforms, setPlatforms] = useState<Platform[]>([]);
   const [loadingPlatforms, setLoadingPlatforms] = useState(false);
+
+  const isInitialIndoor = initial?.enviroment_type === "indoor";
+
+  const initialEnvCode = isInitialIndoor ? "" : (initial?.enviroment_type ?? "");
+
+  const [envCode, setEnvCode] = useState<string>(initialEnvCode);
+  const [isIndoor, setIsIndoor] = useState(isInitialIndoor);
 
   const [mission, setMission] = useState({
     name: initial?.name ?? "",
@@ -75,6 +97,20 @@ export default function MissionForm({ mode, initial, onSaved, onCancel }: Missio
     })();
   }, []);
 
+  const finalEnvType = useMemo<EnvType | undefined>(() => {
+    const currentCode = envCode || (mode === "edit" ? initial?.enviroment_type : "");
+
+    if(!currentCode && !isIndoor && mode === "create") { return undefined; }
+    return calculateEnvType(currentCode as MapCodetype, isIndoor);
+  }, [envCode, isIndoor, mode, initial?.enviroment_type]);
+
+  const finalEnvLabel = useMemo<string>(() => {
+    if (!finalEnvType) {
+      return ""; 
+    }
+    return NEW_ENV_LABELS[finalEnvType] || "סביבה לא מזוהה";
+  }, [finalEnvType]);
+
   const submitLabel = useMemo(() => (mode === "edit" ? "עדכון" : "יצירת משימה"), [mode]);
 
   const validate = (): boolean => {
@@ -89,8 +125,8 @@ export default function MissionForm({ mode, initial, onSaved, onCancel }: Missio
       valid = false;
     }
 
-    if (!mission.enviroment_type.trim()) {
-      tmp.enviroment_type = "שדה חובה!";
+    if (!finalEnvType) {
+      tmp.enviroment_type = "בחר/י נקודה על המפה ו/או סמן/י 'בתוך מבנה'";
       valid = false;
     }
 
@@ -133,20 +169,26 @@ export default function MissionForm({ mode, initial, onSaved, onCancel }: Missio
     if (err.platform_id) setErr((prev) => ({ ...prev, platform_id: "" }));
   };
 
+  const onChangeIndoor = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setIsIndoor(e.target.checked);
+  };
+
   const handlePickFromMap = (picked: EnvPicker) => {
-    setMission((p) => ({ ...p, enviroment_type: picked.code }));
+    setEnvCode(picked.code);
+    setMission((p) => ({ ...p, enviroment_type: picked.label }));
     setCoord({ lat: picked.lat, lon: picked.lon });
     setErr((e) => ({ ...e, enviroment_type: "", lat: "", lon: "" }));
+    setShowPicker(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
 
-    const dto: any = {
+    const dto: UpdateMissionRequest = {
       name: mission.name.trim(),
       coordinate: { latitude: coord.lat!, longitude: coord.lon! },
-      enviroment_type: mission.enviroment_type.trim(),
+      enviroment_type: finalEnvType!,
       platform_id: mission.platform_id,
     };
 
@@ -216,7 +258,7 @@ export default function MissionForm({ mode, initial, onSaved, onCancel }: Missio
             className="rounded flex-1"
             type="text"
             placeholder="נבחר אוטומטית מהמפה (ניתן לשינוי ידני)"
-            value={mission.enviroment_type}
+            value={finalEnvLabel}
             onChange={onChangeEnv}
           />
           <Button type="button" onClick={() => setShowPicker(true)}>
@@ -224,6 +266,12 @@ export default function MissionForm({ mode, initial, onSaved, onCancel }: Missio
           </Button>
         </div>
         {err.enviroment_type && <p className="text-sm text-red-600">{err.enviroment_type}</p>}
+      </div>
+
+      <div className="flex items-center space-x-2 dir-rtl">
+          <Input type="checkbox" id="isIndoor" checked= {isIndoor} onChange={onChangeIndoor} 
+          className="h-4 w-4 text-blue-600 border-gray-300 rounded ml-2"/>
+          <Label htmlFor="isIndoor" className="huninn-regular text-lg text-gray-700">המשימה מתבצעת בתוך מבנה?</Label>
       </div>
 
       <div className="space-y-1">
