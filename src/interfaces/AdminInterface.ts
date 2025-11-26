@@ -1,8 +1,8 @@
-import type { CreateUserRequest } from "./UserInterface";
+import type { CreateUserRequest, UpdateUserRequest } from "./UserInterface";
 
 export interface CreateAdminRequest extends CreateUserRequest {}
 
-export interface UpdateAdminRequest extends CreateUserRequest {}
+export interface UpdateAdminRequest extends UpdateUserRequest {}
 
 export interface Admin {
     id: string;
