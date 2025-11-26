@@ -1,6 +1,4 @@
-import type { UserType } from "./UserInterface";
-
-export type EnvType = "indoor" | "urban" | "open_space";
+export type EnvType = "mount" | "urban" | "open_space";
 
 export const MAP_CODES = [
     "very_dense_urban",
@@ -9,23 +7,44 @@ export const MAP_CODES = [
     "suburban",
     "rural_village",
 ] as const;
-export type MapCodetype = typeof MAP_CODES[number];
+
+export type MapCodetype = (typeof MAP_CODES)[number];
+
+export interface FrequencyRequest {
+    name: string;
+    coordinate: Coordinate;
+    enviroment_type: EnvType;
+    platform_id: string;
+}
+
+export interface FrequencyResponse {
+    freq_mhz: number;
+    tx_power_dbm: number;
+}
 
 export interface CreateMissionRequest {
     name: string;
     coordinate: Coordinate;
-    enviroment_type: EnvType;  
+    freq_mhz: number;
+    tx_power_dbm: number;
     platform_id: string;
 }
 
-export interface UpdateMissionRequest extends CreateMissionRequest {}
+export interface UpdateMissionRequest {
+    name?: string;
+    coordinate?: Coordinate;
+    freq_mhz?: number;
+    tx_power_dbm?: number;
+    platform_id?: string;
+}
 
 export interface Mission {
     id: string;
     name: string;
-    readonly type: UserType;
+    readonly type: "mission";
     coordinate: Coordinate;
-    enviroment_type: EnvType;
+    freq_mhz: number;
+    tx_power_dbm: number;
     platform_id: string;
 }
 
