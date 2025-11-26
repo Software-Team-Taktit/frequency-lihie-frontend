@@ -8,27 +8,43 @@ import type { CreatePlatformRequest } from "@/interfaces/PlatformInterface";
 
 function Platform() {
 
-    type NumericKey = "frequency_mhz" | "bw_khz" | "tx_power_dbm" | "antenna_height_m";
+    type NumericKey = 
+        | "bw_khz"
+        | "tx_gain"
+        | "tx_height_m"
+        | "rx_gain"
+        | "rx_height_m"
+        | "min_sinr_required_db"
+        | "noise_figure_db";
 
     const [platform, setPlatform] = useState({
         name: "",
-        frequency_mhz: NaN as number,
         bw_khz: NaN as number,
-        tx_power_dbm: NaN as number,
-        antenna_height_m: NaN as number    
+        tx_gain: NaN as number,
+        tx_height_m: NaN as number,
+        rx_gain: NaN as number,
+        rx_height_m: NaN as number,
+        min_sinr_required_db: NaN as number,
+        noise_figure_db: NaN as number,
     });
     const [raw, setRaw] = useState<Record<NumericKey, string>>({
-        frequency_mhz: "",
         bw_khz: "",
-        tx_power_dbm: "",
-        antenna_height_m: ""
+        tx_gain: "",
+        tx_height_m: "",
+        rx_gain: "",
+        rx_height_m: "",
+        min_sinr_required_db: "",
+        noise_figure_db: "",
     });
     const [err, setErr] = useState({
         name: "",
-        frequency_mhz: "",
         bw_khz: "",
-        tx_power_dbm: "",
-        antenna_height_m: ""
+        tx_gain: "",
+        tx_height_m: "",
+        rx_gain: "",
+        rx_height_m: "",
+        min_sinr_required_db: "",
+        noise_figure_db: "",
     });
 
     const navigate = useNavigate();
@@ -37,10 +53,13 @@ function Platform() {
         let valid = true;
         const tmp = {
             name: "",
-            frequency_mhz: "",
             bw_khz: "",
-            tx_power_dbm: "",
-            antenna_height_m: ""
+            tx_gain: "",
+            tx_height_m: "",
+            rx_gain: "",
+            rx_height_m: "",
+            min_sinr_required_db: "",
+            noise_figure_db: "",
         };
         if(!platform.name.trim()){
             tmp.name = "שם הפלטפורמה הוא חובה!";
@@ -49,8 +68,16 @@ function Platform() {
 
         const decimalPattern = /^\d+(\.\d+)?$/;
 
-        (["frequency_mhz","bw_khz","tx_power_dbm","antenna_height_m"] as NumericKey[])
-        .forEach((key) => {
+        ([
+            "bw_khz",
+            "tx_gain",
+            "tx_height_m",
+            "rx_gain",
+            "rx_height_m",
+            "min_sinr_required_db",
+            "noise_figure_db",
+        ] as NumericKey[]).forEach((key) => {
+
             const text = raw[key]?.trim();
 
             if(!text){
@@ -101,10 +128,13 @@ function Platform() {
 
         const dto: CreatePlatformRequest = {
             name: platform.name.trim(),
-            frequency_mhz: Number(raw.frequency_mhz),
             bw_khz: Number(raw.bw_khz),
-            tx_power_dbm: Number(raw.tx_power_dbm),
-            antenna_height_m: Number(raw.antenna_height_m)
+            tx_gain: Number(raw.tx_gain),
+            tx_height_m: Number(raw.tx_height_m),
+            rx_gain: Number(raw.rx_gain),
+            rx_height_m: Number(raw.rx_height_m),
+            min_sinr_required_db: Number(raw.min_sinr_required_db),
+            noise_figure_db: Number(raw.noise_figure_db),
         };
 
         try{
@@ -117,17 +147,53 @@ function Platform() {
         }
     }
 
-    const fields : {
-        key: keyof typeof platform;
+    const fields: {
+        key: "name" | NumericKey;
         label: string;
         placeholder: string;
     }[] = [
-        {key: "name", label: "שם הפלטפורמה: ", placeholder: "הכנס את שם הפלטפורמה שלך"},
-        {key: "frequency_mhz", label:"עוצמת התדר: (MHz)", placeholder: "הכנס את עוצמת התדר של הפלטפורמה"},
-        {key: "bw_khz", label:"רוחב פס התדר: (KHz)", placeholder:"הכנס את רוכב פס התדר שלך"},
-        {key: "tx_power_dbm", label:"עוצמת שידור: (dBm)", placeholder:"הכנס את עוצמת השידור של הפלטפורמה שלך"},
-        {key: "antenna_height_m", label: "גובה אנטנה: (m)", placeholder: "הכנס את גובה האנטנה שלך"}
+        {
+            key: "name",
+            label: "שם הפלטפורמה:",
+            placeholder: "הכנס את שם הפלטפורמה שלך",
+        },
+        {
+            key: "bw_khz",
+            label: "רוחב פס התדר (KHz):",
+            placeholder: "הכנס את רוחב הפס של הפלטפורמה",
+        },
+        {
+            key: "tx_gain",
+            label: "רווח אנטנת שידור (dB):",
+            placeholder: "הכנס את רווח אנטנת השידור",
+        },
+        {
+            key: "tx_height_m",
+            label: "גובה אנטנת שידור (m):",
+            placeholder: "הכנס את גובה אנטנת השידור",
+        },
+        {
+            key: "rx_gain",
+            label: "רווח אנטנת קליטה (dB):",
+            placeholder: "הכנס את רווח אנטנת הקליטה",
+        },
+        {
+            key: "rx_height_m",
+            label: "גובה אנטנת קליטה (m):",
+            placeholder: "הכנס את גובה אנטנת הקליטה",
+        },
+        {
+            key: "min_sinr_required_db",
+            label: "SNR מינימלי נדרש (dB):",
+            placeholder: "הכנס את ה-SNR המינימלי הנדרש",
+        },
+        {
+            key: "noise_figure_db",
+            label: "Noise figure (dB):",
+            placeholder: "הכנס את רעש המקלט (Noise Figure)",
+        },
     ];
+
 
 
     return (
