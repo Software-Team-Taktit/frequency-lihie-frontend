@@ -294,11 +294,11 @@ function Mission() {
                                 freqResult&& (
                                     <div className="mt-3 rounded border border-gray-200 bg-gray-50 p-3 space-y-1 huninn-regular text-gray-800">
                                         <div>
-                                            <strong>תדר שנבחר )MHz(: </strong>
+                                            <strong>תדר שנבחר (MHz): </strong>
                                             {freqResult.freq_mhz.toFixed(3)}
                                         </div>
                                         <div>
-                                            <strong>עוצמת שידור שנבחרה )dBm(: </strong>
+                                            <strong>עוצמת שידור שנבחרה (dBm):  </strong>
                                             {freqResult.tx_power_dbm.toFixed(2)}
                                         </div>
                                     </div>

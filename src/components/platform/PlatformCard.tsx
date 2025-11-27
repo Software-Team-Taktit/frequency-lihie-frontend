@@ -17,27 +17,27 @@ export function PlatformCard({
             </CardHeader>
             <CardContent className="text-sm space-y-2">
                 <div>
-                    <strong className="huninn-bold">רוחב פס )KHz(: </strong>
+                    <strong className="huninn-bold">רוחב פס  (KHz): </strong>
                     <span className="huninn-regular">{p.bw_khz}</span>
                 </div>
                 <div>
-                    <strong className="huninn-bold">רווח אנטנת שידור )dB(: </strong>
+                    <strong className="huninn-bold">רווח אנטנת שידור (dB): </strong>
                     <span className="huninn-regular">{p.tx_gain}</span>
                 </div>
                 <div>
-                    <strong className="huninn-bold">גובה אנטנת שידור )m(: </strong>
+                    <strong className="huninn-bold">גובה אנטנת שידור (m): </strong>
                     <span className="huninn-regular">{p.tx_height_m}</span>
                 </div>
                 <div>
-                    <strong className="huninn-bold">רווח אנטנת קליטה )dB(: </strong>
+                    <strong className="huninn-bold">רווח אנטנת קליטה (dB): </strong>
                     <span className="huninn-regular">{p.rx_gain}</span>
                 </div>
                 <div>
-                    <strong className="huninn-bold">גובה אנטנת קליטה )m(: </strong>
+                    <strong className="huninn-bold">גובה אנטנת קליטה (m): </strong>
                     <span className="huninn-regular">{p.rx_height_m}</span>
                 </div>
                 <div>
-                    <strong className="huninn-bold">SNR מינימלי נדרש )dB(: </strong>
+                    <strong className="huninn-bold">SNR מינימלי נדרש (dB): </strong>
                     <span className="huninn-regular">{p.min_sinr_required_db}</span>
                 </div>
                 <div>
