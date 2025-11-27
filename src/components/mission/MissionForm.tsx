@@ -4,51 +4,42 @@ import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
 import MapPicker, { type EnvPicker } from "../mapPicker/MapPicker";
-import type { MapCodetype, EnvType, UpdateMissionRequest } from "../../interfaces/MissionInterface";
-
 import { PlatformsApi } from "../../services/PlatformApi";
 import { MissionsApi } from "../../services/MissionApi";
 
 import type { Platform } from "@/interfaces/PlatformInterface";
-import type { Mission } from "../../interfaces/MissionInterface";
-
+import type {
+  Mission,
+  UpdateMissionRequest,
+  EnvType,
+  MapCodetype,
+  FrequencyRequest,
+  FrequencyResponse,
+} from "../../interfaces/MissionInterface";
 const NEW_ENV_LABELS: Record<EnvType, string> = {
-    indoor: "בתוך מבנה (indoor)",
+    mount: "הררי",
     urban: "עירוני",
     open_space: "שטח פתוח",
 };
 
-const calculateEnvType = (mapCode: MapCodetype | string, indoor: boolean): EnvType => {
-    const code = mapCode || "";
-    
-    if (indoor) return "indoor";
-    if (["very_dense_urban", "dense_urban", "urban"].includes(code)) return "urban";
-    return "open_space";
-}
-
 export type MissionFormProps = {
   mode: "create" | "edit";
-  initial?: Mission;                
+  initial: Mission;                
   onSaved?: (m: Mission) => void;   
   onCancel?: () => void;        
 };
 
 type Coord = { lat: number | null; lon: number | null };
 
-export default function MissionForm({ mode, initial, onSaved, onCancel }: MissionFormProps) {
+export default function MissionForm({initial, onSaved, onCancel }: MissionFormProps) {
   const [platforms, setPlatforms] = useState<Platform[]>([]);
   const [loadingPlatforms, setLoadingPlatforms] = useState(false);
 
-  const isInitialIndoor = initial?.enviroment_type === "indoor";
 
-  const initialEnvCode = isInitialIndoor ? "" : (initial?.enviroment_type ?? "");
-
-  const [envCode, setEnvCode] = useState<string>(initialEnvCode);
-  const [isIndoor, setIsIndoor] = useState(isInitialIndoor);
+  const [envCode, setEnvCode] = useState<string>("");
 
   const [mission, setMission] = useState({
     name: initial?.name ?? "",
-    enviroment_type: initial?.enviroment_type ?? "",
     platform_id: initial?.platform_id ?? "",
   });
 
@@ -63,24 +54,13 @@ export default function MissionForm({ mode, initial, onSaved, onCancel }: Missio
     lat: "",
     lon: "",
     platform_id: "",
+    frequency: "",
   });
 
   const [showPicker, setShowPicker] = useState(false);
 
-  useEffect(() => {
-    if (mode === "edit" && initial) {
-      setMission({
-        name: initial?.name ?? "",
-        enviroment_type: initial.enviroment_type ?? "",
-        platform_id: initial.platform_id ?? "",
-      });
-      setCoord({
-        lat: initial.coordinate?.latitude ?? null,
-        lon: initial.coordinate?.longitude ?? null,
-      });
-      setErr({ name: "", enviroment_type: "", lat: "", lon: "", platform_id: "" });
-    }
-  }, [mode, initial]);
+  const [freqResult, setFreqResult] = useState<FrequencyResponse | null>(null);
+  const [freqLoading, setFreqLoading] = useState(false);
 
   useEffect(() => {
     (async () => {
@@ -97,25 +77,38 @@ export default function MissionForm({ mode, initial, onSaved, onCancel }: Missio
     })();
   }, []);
 
-  const finalEnvType = useMemo<EnvType | undefined>(() => {
-    const currentCode = envCode || (mode === "edit" ? initial?.enviroment_type : "");
+  useEffect(() => {
+    setFreqResult({
+      freq_mhz: initial.freq_mhz,
+      tx_power_dbm: initial.tx_power_dbm,
+    });
+  }, [initial]);
 
-    if(!currentCode && !isIndoor && mode === "create") { return undefined; }
-    return calculateEnvType(currentCode as MapCodetype, isIndoor);
-  }, [envCode, isIndoor, mode, initial?.enviroment_type]);
+  const calculateEnvType = (mapCode:MapCodetype): EnvType => {
+    const denseCodes: MapCodetype[] = [
+      "very_dense_urban",
+      "dense_urban",
+      "urban",
+      "suburban",
+    ];
+    if (denseCodes.includes(mapCode)) return "urban";
+    return "open_space";
+  }
+
+  const finalEnvType = useMemo<EnvType | undefined>(() => {
+    if (!envCode) return undefined;
+    return calculateEnvType(envCode as MapCodetype);
+  }, [envCode]);
 
   const finalEnvLabel = useMemo<string>(() => {
-    if (!finalEnvType) {
-      return ""; 
-    }
+    if (!finalEnvType) return "";
     return NEW_ENV_LABELS[finalEnvType] || "סביבה לא מזוהה";
   }, [finalEnvType]);
 
-  const submitLabel = useMemo(() => (mode === "edit" ? "עדכון" : "יצירת משימה"), [mode]);
 
   const validate = (): boolean => {
     let valid = true;
-    const tmp = { name: "", enviroment_type: "", lat: "", lon: "", platform_id: "" };
+    const tmp = { name: "", enviroment_type: "", lat: "", lon: "", platform_id: "", frequency:""};
 
     if (!mission.name.trim()) {                
       tmp.name = "שם משימה הוא שדה חובה";
@@ -124,12 +117,6 @@ export default function MissionForm({ mode, initial, onSaved, onCancel }: Missio
       tmp.name = "שם המשימה צריך להכיל לפחות 2 תווים";
       valid = false;
     }
-
-    if (!finalEnvType) {
-      tmp.enviroment_type = "בחר/י נקודה על המפה ו/או סמן/י 'בתוך מבנה'";
-      valid = false;
-    }
-
     if (coord.lat == null || coord.lon == null) {
       tmp.lat = "בחר/י נקודה על המפה.";
       tmp.lon = "";
@@ -169,55 +156,82 @@ export default function MissionForm({ mode, initial, onSaved, onCancel }: Missio
     if (err.platform_id) setErr((prev) => ({ ...prev, platform_id: "" }));
   };
 
-  const onChangeIndoor = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setIsIndoor(e.target.checked);
-  };
-
   const handlePickFromMap = (picked: EnvPicker) => {
     setEnvCode(picked.code);
-    setMission((p) => ({ ...p, enviroment_type: picked.label }));
     setCoord({ lat: picked.lat, lon: picked.lon });
     setErr((e) => ({ ...e, enviroment_type: "", lat: "", lon: "" }));
     setShowPicker(false);
   };
 
+  const handleRequestFrequency = async () => {
+    setErr((prev) => ({...prev, frequency: ""}));
+
+    if(!validate) return;
+
+    if(!finalEnvType || coord.lat == null || coord.lon == null){
+      setErr((prev) => ({
+        ...prev,
+        enviroment_type:"יש לבחור נקודה חדשה על המפה כדי לחשב תדר מחדש!"
+      }));
+      return;
+    }
+    const freqReq: FrequencyRequest = {
+      name: mission.name.trim(),
+      coordinate: {latitude: coord.lat, longitude: coord.lon},
+      enviroment_type: finalEnvType,
+      platform_id: mission.platform_id,
+    };
+    try{
+      setFreqLoading(true);
+      setFreqResult(null);
+
+      const res = await fetch("/frequency/calculate", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(freqReq),
+      });
+      if(!res.ok){ throw new Error("Frequency API returned error");}
+      
+      const data = (await res.json()) as FrequencyResponse;
+      setFreqResult(data);
+    } catch (e){
+      console.error(e);
+      setErr((prev) => ({...prev, frequency:"שגיאה בקבלת התדר ועוצמת השידור"}));
+    } finally {
+      setFreqLoading(false);
+    }
+  }
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
 
+    if(!freqResult){
+      setErr((prev) => ({...prev, frequency:"אין נתוני תדר / עוצמת שידור.ניתן לעדכן בלי לחשב מחדש רק אם הערכים נשארים כמו הערכים הקודמים."}));
+      return;
+    }
+
     const dto: UpdateMissionRequest = {
       name: mission.name.trim(),
       coordinate: { latitude: coord.lat!, longitude: coord.lon! },
-      enviroment_type: finalEnvType!,
+      freq_mhz: freqResult.freq_mhz,
+      tx_power_dbm: freqResult.tx_power_dbm,
       platform_id: mission.platform_id,
     };
 
-    try {
-      let saved: Mission;
-      if (mode === "edit" && initial) {
-        saved = await (MissionsApi as any).update(initial.id, dto);
-      } else {
-        saved = await MissionsApi.create(dto as any);
-      }
+    try{
+      const saved = await (MissionsApi as any).update(initial.id, dto);
       onSaved?.(saved);
-    } catch (ex: any) {
-      const next = { ...err };
-      const detail = ex?.data?.detail;
-      if (Array.isArray(detail)) {
-        detail.forEach((d: any) => {
-          const path = Array.isArray(d.loc) ? d.loc : [];
-          const msg = d.msg || "שדה לא תקין";
-          if (path[1] === "coordinate" && path[2] === "lat") next.lat = msg;
-          else if (path[1] === "coordinate" && path[2] === "lon") next.lon = msg;
-          else if (path[1] === "enviroment_type") next.enviroment_type = msg;
-          else if (path[1] === "platform_id") next.platform_id = msg;
-        });
-        setErr(next);
-        return;
-      }
-      setErr((p) => ({ ...p, enviroment_type: "שגיאה בשליחה" }));
+    } catch (ex : any){
+      console.error(ex);
+      setErr((p)=> ({
+        ...p,
+        frequency:"שגיאה בעדכון המשימה",
+      }));
     }
   };
+
+  const submitLabel = "עדכון";
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -250,7 +264,7 @@ export default function MissionForm({ mode, initial, onSaved, onCancel }: Missio
 
       <div className="space-y-2">
         <Label htmlFor="enviroment_type" className="huninn-regular text-lg text-gray-700">
-          סוג הסביבה:
+          סוג הסביבה (לחישוב מחדש):
         </Label>
         <div className="flex gap-2">
           <Input
@@ -268,18 +282,43 @@ export default function MissionForm({ mode, initial, onSaved, onCancel }: Missio
         {err.enviroment_type && <p className="text-sm text-red-600">{err.enviroment_type}</p>}
       </div>
 
-      <div className="flex items-center space-x-2 dir-rtl">
-          <Input type="checkbox" id="isIndoor" checked= {isIndoor} onChange={onChangeIndoor} 
-          className="h-4 w-4 text-blue-600 border-gray-300 rounded ml-2"/>
-          <Label htmlFor="isIndoor" className="huninn-regular text-lg text-gray-700">המשימה מתבצעת בתוך מבנה?</Label>
-      </div>
-
       <div className="space-y-1">
         <Label className="huninn-regular text-lg text-gray-700">נקודת הציון שנבחרה:</Label>
         <div className="text-sm text-gray-700 bg-gray-50 rounded px-3 py-2">
           {coord.lat == null ? "לא נבחרה נקודה" : `${coord.lat.toFixed(6)}, ${coord.lon!.toFixed(6)}`}
         </div>
         {(err.lat || err.lon) && <p className="text-sm text-red-600">{err.lat || err.lon}</p>}
+      </div>
+
+      <div className="space-y-2 border-t pt-4">
+          <Button
+          type="button"
+          className="w-full huninn-regular shadow-md hover:text-blue-600"
+          onClick={handleRequestFrequency}
+          disabled={freqLoading}>
+            {
+              freqLoading ? "מבקש תדר ועוצמת שידור..." : "קבלת תדר ועוצמת שידור מתאימה"
+            }
+          </Button>
+          {
+            err.frequency && (
+              <p className="text-sm text-red-600">{err.frequency}</p>
+            )
+          }
+          {
+            freqResult && (
+              <div className="mt-3 rounded border border-gray-200 bg-gray-50 p-3 space-y-1 huninn-regular text-gray-800">
+                <div>
+                  <strong>תדר שנבחר (MHz): </strong>
+                  {freqResult.freq_mhz.toFixed(3)}
+                </div>
+                <div>
+                  <strong>עוצמת שידור שנבחרה (dBm): </strong>
+                  {freqResult.tx_power_dbm.toFixed(2)}
+                </div>
+              </div>
+            )
+          }
       </div>
 
       <div className="flex gap-2 justify-end pt-2">
