@@ -15,6 +15,7 @@ import type {
     FrequencyRequest,
     FrequencyResponse,
 } from "../../interfaces/MissionInterface";
+import { BASE_URL } from "../../services/BaseApi";
 
 const NEW_ENV_LABELS: Record<EnvType, string> = {
     urban: "עירוני",
@@ -164,7 +165,7 @@ function Mission() {
             setFreqLoading(true);
             setFreqResult(null);
 
-            const res = await fetch("/frequency/calculate", {
+            const res = await fetch(`${BASE_URL}/frequency/calculate`, {
                 method: "POST",
                 headers: {"Content-Type": "application/json"},
                 body: JSON.stringify(freqReq),

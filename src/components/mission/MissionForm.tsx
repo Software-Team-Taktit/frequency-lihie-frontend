@@ -6,6 +6,7 @@ import { Button } from "../ui/button";
 import MapPicker, { type EnvPicker } from "../mapPicker/MapPicker";
 import { PlatformsApi } from "../../services/PlatformApi";
 import { MissionsApi } from "../../services/MissionApi";
+import { BASE_URL } from "../../services/BaseApi";
 
 import type { Platform } from "@/interfaces/PlatformInterface";
 import type {
@@ -185,7 +186,7 @@ export default function MissionForm({initial, onSaved, onCancel }: MissionFormPr
       setFreqLoading(true);
       setFreqResult(null);
 
-      const res = await fetch("/frequency/calculate", {
+      const res = await fetch(`${BASE_URL}/frequency/calculate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(freqReq),
