@@ -37,11 +37,13 @@ function PlatformGallery() {
         if(!editing) return;
         await (PlatformsApi as any).update(editing.id, {
             name: editing.name,
-            type: editing.type,
-            frequency_mhz: editing.frequency_mhz,
             bw_khz: editing.bw_khz,
-            tx_power_dbm: editing.tx_power_dbm,
-            antenna_height_m: editing.antenna_height_m
+            tx_gain: editing.tx_gain,
+            tx_height_m: editing.tx_height_m,
+            rx_gain: editing.rx_gain,
+            rx_height_m: editing.rx_height_m,
+            min_sinr_required_db: editing.min_sinr_required_db,
+            noise_figure_db: editing.noise_figure_db,
         });
         setEditing(null);
         await load();
@@ -85,13 +87,6 @@ function PlatformGallery() {
                             />
                         </div>
                         <div className="grid grid-cols-4 items-center gap-2">
-                            <Label className="huninn-regular text-lg text-gray-700">תדר (MHz)</Label>
-                            <Input className="col-span-3 rounded" type="number" value={editing?.frequency_mhz ?? ""} onChange={(e)=>
-                                setEditing((s) => (s ? { ...s, frequency_mhz: Number(e.target.value) } : s))
-                            }
-                            />
-                        </div>
-                        <div className="grid grid-cols-4 items-center gap-2">
                             <Label className="huninn-regular text-lg text-gray-700">רוחב פס (kHz)</Label>
                             <Input className="col-span-3 rounded" type="number" value={editing?.bw_khz ?? ""} onChange={(e)=>
                                 setEditing((s) => (s ? { ...s, bw_khz: Number(e.target.value) } : s))
@@ -99,17 +94,95 @@ function PlatformGallery() {
                             />
                         </div>
                         <div className="grid grid-cols-4 items-center gap-2">
-                            <Label className="huninn-regular text-lg text-gray-700">עוצמת שידור (dBm)</Label>
-                            <Input className="col-span-3 rounded" type="number" value={editing?.tx_power_dbm ?? ""} onChange={(e)=>
-                                setEditing((s) => (s ? { ...s, tx_power_dbm: Number(e.target.value) } : s))
-                            }
+                            <Label className="huninn-regular text-lg text-gray-700">
+                                רווח אנטנת שידור (dB)
+                            </Label>
+                            <Input
+                                className="col-span-3 rounded"
+                                type="number"
+                                value={editing?.tx_gain ?? ""}
+                                onChange={(e) =>
+                                    setEditing((s) =>
+                                        s ? { ...s, tx_gain: Number(e.target.value) } : s
+                                    )
+                                }
                             />
                         </div>
                         <div className="grid grid-cols-4 items-center gap-2">
-                            <Label className="huninn-regular text-lg text-gray-700">גובה אנטנה (m)</Label>
-                            <Input className="col-span-3 rounded" type="number" value={editing?.antenna_height_m ?? ""} onChange={(e)=>
-                                setEditing((s) => (s ? { ...s, antenna_height_m: Number(e.target.value) } : s))
-                            }
+                            <Label className="huninn-regular text-lg text-gray-700">
+                                גובה אנטנת שידור (m)
+                            </Label>
+                            <Input
+                                className="col-span-3 rounded"
+                                type="number"
+                                value={editing?.tx_height_m ?? ""}
+                                onChange={(e) =>
+                                    setEditing((s) =>
+                                        s ? { ...s, tx_height_m: Number(e.target.value) } : s
+                                    )
+                                }
+                            />
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-2">
+                            <Label className="huninn-regular text-lg text-gray-700">
+                                רווח אנטנת קליטה (dB)
+                            </Label>
+                            <Input
+                                className="col-span-3 rounded"
+                                type="number"
+                                value={editing?.rx_gain ?? ""}
+                                onChange={(e) =>
+                                    setEditing((s) =>
+                                        s ? { ...s, rx_gain: Number(e.target.value) } : s
+                                    )
+                                }
+                            />
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-2">
+                            <Label className="huninn-regular text-lg text-gray-700">
+                                גובה אנטנת קליטה (m)
+                            </Label>
+                            <Input
+                                className="col-span-3 rounded"
+                                type="number"
+                                value={editing?.rx_height_m ?? ""}
+                                onChange={(e) =>
+                                    setEditing((s) =>
+                                        s ? { ...s, rx_height_m: Number(e.target.value) } : s
+                                    )
+                                }
+                            />
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-2">
+                            <Label className="huninn-regular text-lg text-gray-700">
+                                SNR מינימלי (dB)
+                            </Label>
+                            <Input
+                                className="col-span-3 rounded"
+                                type="number"
+                                value={editing?.min_sinr_required_db ?? ""}
+                                onChange={(e) =>
+                                    setEditing((s) =>
+                                        s
+                                        ? { ...s, min_sinr_required_db: Number(e.target.value) }
+                                        : s
+                                    )
+                                }
+                            />
+                        </div>
+                        <div className="grid grid-cols-4 items-center gap-2">
+                            <Label className="huninn-regular text-lg text-gray-700">
+                                Noise figure (dB)
+                            </Label>
+                            <Input
+                                className="col-span-3 rounded"
+                                type="number"
+                                value={editing?.noise_figure_db ?? ""}
+                                onChange={(e) =>
+                                    setEditing((s) =>
+                                        s ? { ...s, noise_figure_db: Number(e.target.value) } : s
+                                    )
+                                }   
                             />
                         </div>
                     </div>

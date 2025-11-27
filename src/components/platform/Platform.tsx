@@ -199,46 +199,48 @@ function Platform() {
     return (
         <main className="p-5">
             <div className="bg-blue-100 rounded-xl p-10 md:p-10 w-[1800px] h-[750px] mx-auto shadow-md flex items-center justify-center">
-                <div className="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-md space-y-6">
-                    <h1 className="suez-one-regular text-6xl text-center text-blue-700">
-                        הכנסת פלטפורמה
-                    </h1>
+                <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md">
+                    <div className="p-10 space-y-6 max-h-[650px] overflow-y-auto">
+                        <h1 className="suez-one-regular text-6xl text-center text-blue-700">
+                            הכנסת פלטפורמה
+                        </h1>
 
-                    <form onSubmit={handleSubmit} className="space-y-1">
-                        {fields.map((field) => (
-                            <div className="space-y-2" key={field.key as string}>
-                                <Label htmlFor={field.key} className="huninn-regular text-lg text-gray-700">
-                                    {field.label}
-                                </Label>
-                                {field.key === "name" ? (
-                                    <Input
-                                    className="rounded"
-                                    id={field.key as string}
-                                    type="text"
-                                    value={platform.name}
-                                    placeholder={field.placeholder}
-                                    onChange={onChangeText}/>
-                                ): (
-                                    <Input
-                                    className="rounded"
-                                    id={field.key as string}
-                                    type="text"
-                                    inputMode="decimal"
-                                    value={raw[field.key as NumericKey]}
-                                    placeholder={field.placeholder}
-                                    onChange={onChangNumber(field.key as NumericKey)}/>
-                                )}
-                                {err[field.key as keyof typeof err] && (
-                                    <p className="text-sm text-red-600">{err[field.key as keyof typeof err]}</p>
-                                )}
-                            </div>
-                        ))}
+                        <form onSubmit={handleSubmit} className="space-y-1">
+                            {fields.map((field) => (
+                                <div className="space-y-2" key={field.key as string}>
+                                    <Label htmlFor={field.key} className="huninn-regular text-lg text-gray-700">
+                                        {field.label}
+                                    </Label>
+                                    {field.key === "name" ? (
+                                        <Input
+                                        className="rounded"
+                                        id={field.key as string}
+                                        type="text"
+                                        value={platform.name}
+                                        placeholder={field.placeholder}
+                                        onChange={onChangeText}/>
+                                    ): (
+                                        <Input
+                                        className="rounded"
+                                        id={field.key as string}
+                                        type="text"
+                                        inputMode="decimal"
+                                        value={raw[field.key as NumericKey]}
+                                        placeholder={field.placeholder}
+                                        onChange={onChangNumber(field.key as NumericKey)}/>
+                                    )}
+                                    {err[field.key as keyof typeof err] && (
+                                        <p className="text-sm text-red-600">{err[field.key as keyof typeof err]}</p>
+                                    )}
+                                </div>
+                            ))}
 
-                        <Button className="w-full text-lg huninn-regular shadow-md  hover:text-blue-600" onClick={handleSubmit}>
-                            יצירת פלטפורמה
-                        </Button>
-                        
-                    </form>
+                            <Button className="w-full text-lg huninn-regular shadow-md  hover:text-blue-600" onClick={handleSubmit}>
+                                יצירת פלטפורמה
+                            </Button>
+                            
+                        </form>
+                    </div>
                 </div>
             </div>
         </main>
