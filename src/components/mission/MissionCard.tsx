@@ -5,16 +5,6 @@ import { useEffect, useState } from "react";
 import { PlatformsApi } from "../../services/PlatformApi";
 import type { Mission } from "../../interfaces/MissionInterface";
 
-const ENV_LABELS: Record<string, string> = {
-    very_dense_urban: "צפוף מאוד מאוד",
-    dense_urban:     "צפוף עירוני",
-    urban:           "עירוני",
-    suburban:        "פרברי",
-    rural_village:   "כפרי",
-};
-
-const envCodeToLabel = (code?: string) => (code ? (ENV_LABELS[code] ?? code) : "");
-
 function MissionCard({m, onEdit, onDelete} : {
     m: Mission;
     onEdit: (m: Mission) => void;
@@ -38,7 +28,8 @@ function MissionCard({m, onEdit, onDelete} : {
                 <CardTitle className="text-2xl huninn-bold">{m.name || "משימה"}</CardTitle>
             </CardHeader>
             <CardContent className="text-sm space-y-2 ">
-                <div><strong className="huninn-bold">סוג הסביבה: </strong> <span className="huninn-regular">{envCodeToLabel(m.enviroment_type)}</span></div>
+                <div><strong className="huninn-bold">תדר המשימה (MHz): </strong><span className="huninn-regular">{m.freq_mhz}</span></div>
+                <div><strong className="huninn-bold">עוצמת שידור (dBm): </strong><span className="huninn-regular">{m.tx_power_dbm}</span></div>
                 <div><strong className="huninn-bold">נקודת ציון: </strong><span className="huninn-regular"> latitude - {m.coordinate.latitude}, longitude - {m.coordinate.longitude}</span></div>
                 <div><strong className="huninn-bold">שם הפלטפורמה המשויכת: </strong><span className="huninn-regular">{platformName}</span></div>
             </CardContent>
