@@ -11,7 +11,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import { useState } from "react";
-import { loginByPersonalId } from "../../services/UserApi";
+import { loginUserByPersonalId } from "../../services/AuthApi";
 import { HttpError } from "../../services/BaseApi";
 import type { UserLogInRequest } from "../../interfaces/UserInterface";
 
@@ -40,7 +40,7 @@ function LogIn() {
             const dto: UserLogInRequest = {
                 personal_id: personalId
             }
-            const me = await loginByPersonalId(dto);
+            const me = await loginUserByPersonalId(dto);
             setUser(me);
             navigate("/home");
         } catch(e) {

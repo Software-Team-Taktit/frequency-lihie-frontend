@@ -1,38 +1,82 @@
-import React, {createContext, useContext, useEffect, useState} from "react";
-import type {User} from "../interfaces/UserInterface";
-import {me as getMe, logout as apiLogout, refresh as apiRefresh} from "../services/UserApi";
+import {
+    createContext,
+    useContext,
+    useEffect,
+    useState,
+} from "react";
 
-type AuthState = {
-    user: User | null;
-    setUser: (u: User | null) => void;
-    logout: () => void;
-};
+import type { User } from "../interfaces/UserInterface";
+import type { Admin } from "../interfaces/AdminInterface";
 
-const AuthCtx = createContext<AuthState | undefined>(undefined);
+import {
+    meUser,
+    logout as apiLogout,
+    refresh as apiRefresh,
+} from "../services/AuthApi";
 
-export function AuthProvider({children}: {children: React.ReactNode}) {
-    const [user, setUser] = useState<User | null>(null);
+// ===== Types =====
+export type Principal = User | Admin;
+
+interface AuthContextType {
+    user: Principal | null;
+    setUser: (user: Principal | null) => void;
+    logout: () => Promise<void>;
+}
+
+// ===== Context =====
+const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// ===== Provider =====
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+    const [user, setUser] = useState<Principal | null>(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        (async () => {
-            try { await apiRefresh(); } catch { }
-            try { setUser(await getMe()); } catch { setUser(null); }
-        })();
+        const loadMe = async () => {
+            try {
+        // /auth/me – מחזיר user או admin
+                const me = await meUser();
+                setUser(me as Principal);
+            } catch {
+        // ננסה refresh פעם אחת
+                try {
+                    await apiRefresh();
+                    const me = await meUser();
+                    setUser(me as Principal);
+                } catch {
+                setUser(null);
+                }
+            } finally {
+            setLoading(false);
+            }
+        };
+        loadMe();
     }, []);
 
-    const logout = () => {
-        void apiLogout().finally(()=> setUser(null));
+    const logout = async () => {
+        try {
+            await apiLogout();
+        } finally {
+            setUser(null);
+        }
     };
 
+    if (loading) {
+        return null; // או spinner אם בא לך
+    }
+
     return (
-        <AuthCtx.Provider value={{user, setUser, logout}}>
+        <AuthContext.Provider value={{ user, setUser, logout }}>
             {children}
-        </AuthCtx.Provider>
+        </AuthContext.Provider>
     );
 }
 
-export function useAuth(){
-    const ctx = useContext(AuthCtx);
-    if(!ctx) throw new Error("useAuth must be used within <AuthProvider>");
-    return ctx;
+// ===== Hook =====
+export function useAuth() {
+    const context = useContext(AuthContext);
+    if (!context) {
+        throw new Error("useAuth must be used within an AuthProvider");
+    }
+    return context;
 }

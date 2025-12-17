@@ -3,9 +3,13 @@ import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { UserApi, loginByPersonalId } from "../../services/UserApi";
+import { UserApi } from "../../services/UserApi";
+import { AdminsApi } from "../../services/AdminApi.ts";
+import { loginAdminByPersonalId, loginUserByPersonalId 
+} from "../../services/AuthApi.ts"
 import { useAuth } from "../../context/AuthContext.tsx";
 import type { CreateUserRequest, UserLogInRequest } from "../../interfaces/UserInterface";
+import type { CreateAdminRequest, AdminLogInRequest } from "../../interfaces/AdminInterface.ts"
 import { HttpError } from "../../services/BaseApi.ts";
 import {
     Dialog,
@@ -22,6 +26,8 @@ function Register() {
         lastName: "",
         unit: ""
     });
+
+    const [registerAsAdmin, setRegisterAsAdmin] = useState(false);
 
     let [err, setErr] = useState({
         personalId: "",
@@ -72,35 +78,50 @@ function Register() {
     const handleSubmit = async () => {
         if(!validate()) return;
 
-        const dto: CreateUserRequest = {
-            personal_id: form.personalId.trim(),
-            first_name: form.firstName.trim(),
-            last_name: form.lastName.trim(),
-            unit: form.unit.trim()
-        };
-
         try{
             setServerErr("");
-            const created = await UserApi.create(dto);
-            console.log("registered: ", created);
-            const logInDto : UserLogInRequest = {
-                personal_id: created.personal_id
+
+            const personal_id = form.personalId.trim();
+
+            if(registerAsAdmin) {
+                const dto: CreateAdminRequest = {
+                    personal_id,
+                    first_name: form.firstName.trim(),
+                    last_name: form.lastName.trim(),
+                    unit: form.unit.trim(),
+                };
+
+                const created = await AdminsApi.create(dto);
+
+                const logInDto: AdminLogInRequest = { personal_id: created.personal_id };
+                const me = await loginAdminByPersonalId(logInDto);
+
+                setUser(me);
+                navigate("/home");
+                return;
+            }
+            const dto: CreateUserRequest = {
+                personal_id,
+                first_name: form.firstName.trim(),
+                last_name: form.lastName.trim(),
+                unit: form.unit.trim(),
             };
-            const me = await loginByPersonalId(logInDto);
+            const created = await UserApi.create(dto);
+            const logInDto: UserLogInRequest = { personal_id: created.personal_id };
+            const me = await loginUserByPersonalId(logInDto);
+
             setUser(me);
             navigate("/home");
-        } catch (e:any){
-            if(e.status === 409) {
+        }
+        catch (e: any) {
+            if(e?.status === 409) {
                 setServerErr("כבר קיים משתמש עם המספר האישי הזה!");
                 setShowDialog(true);
-                form.personalId = "";
-                form.firstName = "";
-                form.lastName = "";
-                form.unit = "";
+                return;
             }
             const errObj = e as HttpError;
             setServerErr(errObj?.message || "שגיאה בהרשמה");
-        } 
+        }
     }
 
     const fields: {
@@ -139,6 +160,17 @@ function Register() {
                             )}
                         </div>
                     ))}
+
+                    <div className="flex items-center gap-2 pt-2">
+                        <Input 
+                        id="registerAsAdmin"
+                        type="checkbox"
+                        checked={registerAsAdmin} 
+                        onChange={(e) => setRegisterAsAdmin(e.target.checked)}/>
+                        <Label htmlFor="registerAsAdmin" className="huninn-regular text-lg text-gray-700">
+                            הרשמה כמנהל
+                        </Label>
+                    </div>
 
                     <Button className="hover:text-blue-600 w-full mt-4 text-lg huninn-regular shadow-md " onClick={handleSubmit}>
                         הרשמה
