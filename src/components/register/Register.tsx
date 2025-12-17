@@ -162,13 +162,13 @@ function Register() {
                     ))}
 
                     <div className="flex items-center gap-2 pt-2">
-                        <Input 
+                        <input 
                         id="registerAsAdmin"
                         type="checkbox"
                         checked={registerAsAdmin} 
                         onChange={(e) => setRegisterAsAdmin(e.target.checked)}/>
                         <Label htmlFor="registerAsAdmin" className="huninn-regular text-lg text-gray-700">
-                            הרשמה כמנהל
+                            נרשם/ת כמנהל/ת ?
                         </Label>
                     </div>
 
