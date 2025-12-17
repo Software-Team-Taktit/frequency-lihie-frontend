@@ -14,7 +14,7 @@ function NavBar() {
 
     return (
         <header className="bg-white dark:bg-gray-900 shadow-md">
-            <nav className="h-16 w-full flex justify-between items-center px-6">
+            <nav className="w-full flex justify-between items-center px-6">
                 <div className="text-2xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-6">
                     <Link to="/home" className="flex items-center">
                         <img src={merhavim_logo} alt='מרחבים לוגו' className='h-[70px] w-[150px] object-contain '/>
@@ -22,6 +22,15 @@ function NavBar() {
                     <div className="flex items-center gap-4 ">
                         <Link to="/platform" className="hover:text-blue-600 transition-all huninn-regular mr-5">פלטפורמה</Link>
                         <Link to="/mission" className="hover:text-blue-600 transition-all huninn-regular mr-5">משימה</Link>
+                        <div className="w-64 mr-6 mt-2">
+                            <div className="h-2 w-full bg-gray-200 overflow-hidden">
+                                <div className="h-full w-full bg-blue-500" />
+                            </div>
+                            <div className="flex justify-between text-[15px] text-gray-600 mt-1 huninn-regular" dir='ltr'>
+                                <span>500 MHz</span>
+                                <span>1600 MHz</span>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
