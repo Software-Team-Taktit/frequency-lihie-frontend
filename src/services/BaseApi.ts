@@ -16,7 +16,7 @@ export const getAccess = () => accessToken;
 export const clearAccess = () => { accessToken = null; };
 
 async function refreshAccess(): Promise<string> {
-    const res = await fetch(`${BASE_URL}/users/refresh`, {
+    const res = await fetch(`${BASE_URL}/auth/refresh`, {
         method: "POST",
         credentials: "include",         
     });
