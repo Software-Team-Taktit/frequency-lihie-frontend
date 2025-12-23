@@ -10,16 +10,12 @@ import type {
   MultiPolygon,
 } from "geojson";
 
-/**
- * CONFIG
- */
-const DEM_DIR = path.resolve("mount_polygons"); // ✅ folder with your 9 .tif files
+const DEM_DIR = path.resolve("mount_polygons");  
 const OUTPUT = path.resolve("src/assets/env_polygons_mountains.json");
 
-// Start with these (balanced for Israel). We can tune later.
-const HEIGHT_THRESHOLD = 350; // meters (captures mountains + hills)
-const SLOPE_THRESHOLD = 6;    // degrees (captures hilly terrain)
-const SAMPLE_STEP = 5;        // sample every N pixels
+const HEIGHT_THRESHOLD = 350;
+const SLOPE_THRESHOLD = 6;  
+const SAMPLE_STEP = 5;    
 
 type PolyLike = Feature<Polygon | MultiPolygon>;
 
@@ -36,12 +32,10 @@ async function processTiff(filePath: string): Promise<PolyLike[]> {
   const tiff = await fromFile(filePath);
   const image = await tiff.getImage();
 
-  // ✅ Fix for typings: no getSize()
   const width = (image as any).getWidth();
   const height = (image as any).getHeight();
 
   const bbox = (image as any).getBoundingBox() as [number, number, number, number];
-  // bbox: [minLon, minLat, maxLon, maxLat]
   const xRes = (bbox[2] - bbox[0]) / width;
   const yRes = (bbox[3] - bbox[1]) / height;
 
@@ -61,20 +55,18 @@ async function processTiff(filePath: string): Promise<PolyLike[]> {
 
       if (!Number.isFinite(z) || !Number.isFinite(z2)) continue;
 
-      // sanity filter (avoid weird DEM sentinel values)
       if (z < -500 || z > 10000) continue;
       if (z2 < -500 || z2 > 10000) continue;
 
       if (z < minZ) minZ = z;
       if (z > maxZ) maxZ = z;
 
-      // rough meters conversion. Good enough for classification
       const approxMeters = SAMPLE_STEP * xRes * 111_000;
       const slope = computeSlopeDeg(z, z2, approxMeters);
 
       if (z >= HEIGHT_THRESHOLD || slope >= SLOPE_THRESHOLD) {
         const lon = bbox[0] + x * xRes;
-        const lat = bbox[3] - y * yRes; // flip Y because raster is top->down
+        const lat = bbox[3] - y * yRes; 
         points.push(turf.point([lon, lat]) as Feature<Point>);
       }
     }
@@ -82,12 +74,10 @@ async function processTiff(filePath: string): Promise<PolyLike[]> {
 
   console.log(`   ↳ minZ/maxZ: ${minZ} ${maxZ} picked points: ${points.length}`);
 
-  // Too few points => no reliable hull
   if (points.length < 300) return [];
 
   const fc = turf.featureCollection(points) as unknown as FeatureCollection<Point>;
 
-  // concave -> convex -> envelope (always returns a polygon)
   let hull: any = null;
 
   try {
@@ -114,7 +104,6 @@ async function processTiff(filePath: string): Promise<PolyLike[]> {
   const gType = hull.geometry.type;
   console.log("   ↳ hull geometry:", gType);
 
-  // Accept Polygon and MultiPolygon
   if (gType !== "Polygon" && gType !== "MultiPolygon") {
     console.log("   ↳ unsupported hull type:", gType);
     return [];
