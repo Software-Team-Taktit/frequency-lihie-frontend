@@ -6,6 +6,8 @@ export const MAP_CODES = [
     "urban",
     "suburban",
     "rural_village",
+    "open_space",
+    "mount"
 ] as const;
 
 export type MapCodetype = (typeof MAP_CODES)[number];

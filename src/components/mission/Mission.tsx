@@ -65,6 +65,7 @@ function Mission() {
     }, []) ;
 
     const calculateEnvType = (mapCode: MapCodetype): EnvType => {
+        if (mapCode === "mount") return "mount";
         const denseCodes: MapCodetype[] = [
             "very_dense_urban",
             "dense_urban",
@@ -141,6 +142,7 @@ function Mission() {
     };
 
     const handlePickFromMap = (picked: EnvPicker) => {
+        console.log("mapCode:", picked.code, "=> finalEnvType:", calculateEnvType(picked.code as MapCodetype));
         setEnvCode(picked.code);
         setCoord({lat: picked.lat, lon: picked.lon});
         setErr((e) => ({ ...e, enviroment_type: "", lat: "", lon: "" }));

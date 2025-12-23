@@ -86,6 +86,7 @@ export default function MissionForm({initial, onSaved, onCancel }: MissionFormPr
   }, [initial]);
 
   const calculateEnvType = (mapCode:MapCodetype): EnvType => {
+    if (mapCode === "mount") return "mount";
     const denseCodes: MapCodetype[] = [
       "very_dense_urban",
       "dense_urban",
