@@ -2,7 +2,8 @@ import { MapContainer, TileLayer, GeoJSON, useMapEvents, useMap } from "react-le
 import type { LeafletMouseEvent } from "leaflet";
 import * as turf from "@turf/turf";
 import unionBoundary from "../../assets/israel_palestine_union.json";
-import envPolys from "../../assets/env_polygons_cities.json";
+import envCities from "../../assets/env_polygons_cities.json";
+import envMountains from "../../assets/env_polygons_mountains.json";
 import { Button } from "../ui/button";
 import { useEffect, useState } from "react";
 import 'leaflet/dist/leaflet.css';
@@ -59,7 +60,10 @@ function MapPicker({onPick, onClose}: {onPick:(picked: EnvPicker)=> void; onClos
 
     const unionFeatures: PolyLike[] = normalizeToFeatures(unionBoundary as any).filter(isPolyLike);
 
-    const envFeatures: PolyLike[] = normalizeToFeatures(envPolys as any).filter(isPolyLike);
+    const envFeatures: PolyLike[] = [
+        ...normalizeToFeatures(envCities as any),
+        ...normalizeToFeatures(envMountains as any),
+    ].filter(isPolyLike);
 
     const areaKm2 = (f: PolyLike) => turf.area(f as any) / 1_000_000;
 
@@ -103,20 +107,23 @@ function MapPicker({onPick, onClose}: {onPick:(picked: EnvPicker)=> void; onClos
 
 
         let picked: EnvPicker | null = null;
-        for (const f of sortedEnv) {
-            if(turf.booleanPointInPolygon(pt, f as any)) {
-                const props: any = f.properties ?? {};
-                picked = {
-                    code: String(props.env_code ?? ""),
-                    label: String(props.label_he ?? ""),
-                    lat,
-                    lon,
-                };
-                break;
-            }
+        
+        for (const f of sortedEnv){
+            try{
+                if(turf.booleanPointInPolygon(pt, f as any)){
+                    const props: any = f.properties ?? {};
+                    picked = {
+                        code: String(props.env_code ?? ""),
+                        label: String(props.label_he ?? ""),
+                        lat,
+                        lon,
+                    };
+                    break;
+                }
+            } catch {}
         }
         if(!picked){
-            picked = { code: "rural_village", label: "כפרי", lat, lon };
+            picked = { code: "open_space", label: "שטח פתוח", lat, lon }
         }
         onPick(picked);
         onClose();
@@ -138,7 +145,8 @@ function MapPicker({onPick, onClose}: {onPick:(picked: EnvPicker)=> void; onClos
                             tileerror: (e) => console.log('❌ tile error', e)
                         }}/>
                         <GeoJSON data={unionBoundary as any} style={{ color: "#111", weight: 2, fillOpacity: 0 }}/>
-                        <GeoJSON data={envPolys as any} filter={(f: any) => f?.geometry?.type !== 'Point'} style={{ color: "#6b7280", weight: 1, fillOpacity: 0.15 }} />
+                        <GeoJSON data={envMountains as any} style={{ color: "#a16207", weight: 1, fillOpacity: 0.12 }} />
+                        <GeoJSON data={envCities as any} filter={(f: any) => f?.geometry?.type !== 'Point'} style={{ color: "#6b7280", weight: 1, fillOpacity: 0.15 }} />
                         <ClickCatcher onClick={handleClick}/>
                     </MapContainer>
                 </div>
