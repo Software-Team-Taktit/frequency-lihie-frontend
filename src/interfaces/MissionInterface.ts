@@ -26,6 +26,7 @@ export interface FrequencyResponse {
 
 export interface CreateMissionRequest {
     name: string;
+    time: number;
     coordinate: Coordinate;
     freq_mhz: number;
     tx_power_dbm: number;
@@ -34,6 +35,7 @@ export interface CreateMissionRequest {
 
 export interface UpdateMissionRequest {
     name?: string;
+    time?: number;
     coordinate?: Coordinate;
     freq_mhz?: number;
     tx_power_dbm?: number;
@@ -44,10 +46,15 @@ export interface Mission {
     id: string;
     name: string;
     readonly type: "mission";
+    time: number;
     coordinate: Coordinate;
     freq_mhz: number;
     tx_power_dbm: number;
     platform_id: string;
+
+    is_active: boolean;
+    created_at: string;
+    expires_at: string | null;
 }
 
 export interface Coordinate {
