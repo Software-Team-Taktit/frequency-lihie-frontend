@@ -41,6 +41,7 @@ export default function MissionForm({initial, onSaved, onCancel }: MissionFormPr
 
   const [mission, setMission] = useState({
     name: initial?.name ?? "",
+    time: initial?.time ?? 0,
     platform_id: initial?.platform_id ?? "",
   });
 
@@ -51,6 +52,7 @@ export default function MissionForm({initial, onSaved, onCancel }: MissionFormPr
 
   const [err, setErr] = useState({
     name: "",
+    time: "",
     enviroment_type: "",
     lat: "",
     lon: "",
@@ -110,13 +112,17 @@ export default function MissionForm({initial, onSaved, onCancel }: MissionFormPr
 
   const validate = (): boolean => {
     let valid = true;
-    const tmp = { name: "", enviroment_type: "", lat: "", lon: "", platform_id: "", frequency:""};
+    const tmp = { name: "", time: "", enviroment_type: "", lat: "", lon: "", platform_id: "", frequency:""};
 
     if (!mission.name.trim()) {                
       tmp.name = "שם משימה הוא שדה חובה";
       valid = false;
     } else if (mission.name.trim().length < 2) {
       tmp.name = "שם המשימה צריך להכיל לפחות 2 תווים";
+      valid = false;
+    }
+    if (mission.time <= 0) {
+      tmp.time = "חובה להוסיף זמן משוערך למשימה!";
       valid = false;
     }
     if (coord.lat == null || coord.lon == null) {
@@ -148,6 +154,18 @@ export default function MissionForm({initial, onSaved, onCancel }: MissionFormPr
     if (err.name) setErr((prev) => ({ ...prev, name: "" }));
   };
 
+  const onChangeTime = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newTime = Number(e.target.value);
+
+    if (newTime < 0) {
+      setErr((prev) => ({ ...prev, time: "הזמן לא יכול להיות שלילי!" }));
+      return;
+    }
+
+    setMission((prev) => ({ ...prev, time: newTime }));
+    if (err.time) setErr((prev) => ({ ...prev, time: "" }));
+  };
+
   const onChangeEnv = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMission((p) => ({ ...p, enviroment_type: e.target.value }));
     if (err.enviroment_type) setErr((prev) => ({ ...prev, enviroment_type: "" }));
@@ -168,7 +186,7 @@ export default function MissionForm({initial, onSaved, onCancel }: MissionFormPr
   const handleRequestFrequency = async () => {
     setErr((prev) => ({...prev, frequency: ""}));
 
-    if(!validate) return;
+    if(!validate()) return;
 
     if(!finalEnvType || coord.lat == null || coord.lon == null){
       setErr((prev) => ({
@@ -215,6 +233,7 @@ export default function MissionForm({initial, onSaved, onCancel }: MissionFormPr
 
     const dto: UpdateMissionRequest = {
       name: mission.name.trim(),
+      time: mission.time,
       coordinate: { latitude: coord.lat!, longitude: coord.lon! },
       freq_mhz: freqResult.freq_mhz,
       tx_power_dbm: freqResult.tx_power_dbm,
@@ -242,6 +261,21 @@ export default function MissionForm({initial, onSaved, onCancel }: MissionFormPr
         <Input id="name" type="text" className="rounded flex-1" placeholder="הכנס שם משימה" value={mission.name} 
         onChange={onChangeName}/>
         {err.name && <p className="text-sm text-red-600">{err.name}</p>}
+      </div>
+      <div className="space-y-2">
+        <Label htmlFor="time" className="huninn-regular text-lg text-gray-700">
+          זמן משימה משוערך (בדקות):
+        </Label>
+        <Input
+          id="time"
+          type="number"
+          min="1"
+          className="rounded flex-1"
+          placeholder="הכנס זמן משימה משוערך (בדקות)"
+          value={mission.time}
+          onChange={onChangeTime}
+        />
+        {err.time && <p className="text-sm text-red-600">{err.time}</p>}
       </div>
       <div className="space-y-2">
         <Label htmlFor="platform_id" className="huninn-regular text-lg text-gray-700">
