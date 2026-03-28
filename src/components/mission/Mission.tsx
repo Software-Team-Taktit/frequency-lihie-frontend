@@ -17,11 +17,11 @@ import type {
 } from "../../interfaces/MissionInterface";
 import { BASE_URL } from "../../services/BaseApi";
 
-const NEW_ENV_LABELS: Record<EnvType, string> = {
-    urban: "עירוני",
-    open_space: "שטח פתוח",
-    mount: "הררי",
-};
+const ENV_OPTIONS: { value: EnvType; label: string }[] = [
+    { value: "mount", label: "הררי" },
+    { value: "urban", label: "עירוני" },
+    { value: "open_space", label: "שטח פתוח" },
+];
 
 function Mission() {
     const [mission, setMission] = useState({
@@ -30,8 +30,8 @@ function Mission() {
         platform_id: ""
     });
 
-    const [, setEnvLabel] = useState<string>("");
     const [envCode, setEnvCode] = useState<string>("");
+    const [selectedEnvType, setSelectedEnvType] = useState<EnvType | "">("");
 
     type Coord = {lat: number | null, lon: number | null};
     const [coord, setCoord] = useState<Coord>({lat: null, lon: null});
@@ -78,16 +78,14 @@ function Mission() {
         return "open_space";
     }
 
-    const finalEnvType = useMemo<EnvType | undefined>(() => {
+    const autoEnvType = useMemo<EnvType | undefined>(() => {
         if (!envCode) return undefined;
-            return calculateEnvType(envCode as MapCodetype);
+        return calculateEnvType(envCode as MapCodetype);
     }, [envCode]);
 
-
-    const finalEnvLabel = useMemo<string>(() => {
-        if (!finalEnvType) return "";
-        return NEW_ENV_LABELS[finalEnvType] || "סביבה לא מזוהה";
-    }, [finalEnvType]);
+    const finalEnvType = useMemo<EnvType | undefined>(() => {
+        return selectedEnvType || autoEnvType;
+    }, [selectedEnvType, autoEnvType]);
 
     const validateMission = () : boolean => {
         let valid = true;
@@ -148,9 +146,13 @@ function Mission() {
         setMission(prev => ({ ...prev, time: newTime }));
     }
     
-    const onChangeEnv = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setEnvLabel(e.target.value);
-        if (err.enviroment_type) setErr((prev) => ({ ...prev, enviroment_type: "" }));
+    const onChangeEnv = (e: React.ChangeEvent<HTMLSelectElement>) => {
+        const value = e.target.value as EnvType | "";
+        setSelectedEnvType(value);
+
+        if (err.enviroment_type) {
+            setErr((prev) => ({ ...prev, enviroment_type: "" }));
+        }
     };
 
     const onChangePlatform = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -159,12 +161,13 @@ function Mission() {
     };
 
     const handlePickFromMap = (picked: EnvPicker) => {
-        console.log("mapCode:", picked.code, "=> finalEnvType:", calculateEnvType(picked.code as MapCodetype));
+        const detectedEnv = calculateEnvType(picked.code as MapCodetype);
         setEnvCode(picked.code);
-        setCoord({lat: picked.lat, lon: picked.lon});
+        setSelectedEnvType(detectedEnv);
+        setCoord({ lat: picked.lat, lon: picked.lon });
         setErr((e) => ({ ...e, enviroment_type: "", lat: "", lon: "" }));
         setShowPicker(false);
-    }
+    };
 
     const handleRequestFrequency = async () => {
         setErr((prev) => ({...prev, frequency: ""}));
@@ -280,13 +283,20 @@ function Mission() {
                                 סוג הסביבה:
                             </Label>
                             <div className="flex gap-2">
-                                <Input
-                                id="enviroment_type" 
-                                className="rounded flex-1"
-                                type="text"
-                                placeholder="נבחר אוטומטית מהמפה (ניתן לשינוי ידני)"
-                                value={finalEnvLabel} 
-                                onChange={onChangeEnv}/>
+                                <select
+                                    id="enviroment_type"
+                                    className="w-full rounded border border-gray-300 p-2"
+                                    value={selectedEnvType}
+                                    onChange={onChangeEnv}
+                                >
+                                    <option value="">בחר סוג סביבה...</option>
+                                    {ENV_OPTIONS.map(option => (
+                                        <option key={option.value} value={option.value}>
+                                            {option.label}
+                                        </option>
+                                    ))}
+
+                                </select>
                                 <Button className="huninn-regular" type="button" onClick={()=> setShowPicker(true)}>בחירה מהמפה</Button>
                             </div>
                             {err.enviroment_type && <p className="text-sm text-red-600">{err.enviroment_type}</p>}
