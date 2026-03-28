@@ -26,6 +26,7 @@ const NEW_ENV_LABELS: Record<EnvType, string> = {
 function Mission() {
     const [mission, setMission] = useState({
         name: "",
+        time: 0,
         platform_id: ""
     });
 
@@ -37,6 +38,7 @@ function Mission() {
 
     const [err, setErr] = useState({
         name: "",
+        time: "",
         enviroment_type: "",
         lat: "",
         lon: "",
@@ -91,6 +93,7 @@ function Mission() {
         let valid = true;
         const tmp = {
             name: "",
+            time: "",
             enviroment_type: "",
             lat: "",
             lon: "",
@@ -122,6 +125,11 @@ function Mission() {
 
         if(!mission.platform_id) {tmp.platform_id = "בחר/י פלטפורמה מהרשימה!"; valid = false;}
 
+        if(!mission.time){
+            tmp.time = "חובה להוסיף זמן משוערך למשימה!"; 
+            valid = false;
+        } 
+
         setErr(tmp);
         return valid;
     };
@@ -130,6 +138,15 @@ function Mission() {
         setMission(p => ({ ...p, name: e.target.value }));
         if (err.name) setErr(prev => ({ ...prev, name: "" }));
     };
+
+    const onChangeTime = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const newTime = Number(e.target.value);
+        if(newTime < 0) {
+            setErr(prev => ({ ...prev, time: "הזמן לא יכול להיות שלילי!"}));
+            return;
+        }
+        setMission(prev => ({ ...prev, time: newTime }));
+    }
     
     const onChangeEnv = (e: React.ChangeEvent<HTMLInputElement>) => {
         setEnvLabel(e.target.value);
@@ -206,6 +223,7 @@ function Mission() {
 
         const dto: CreateMissionRequest = {
             name: mission.name.trim(),
+            time: mission.time,
             coordinate: { latitude: coord.lat!, longitude: coord.lon! },
             freq_mhz: freqResult.freq_mhz,
             tx_power_dbm: freqResult.tx_power_dbm,
@@ -238,6 +256,11 @@ function Mission() {
                             <Input id="name" className="rounded flex-1" type="text" placeholder="הכנס שם משימה"
                             value={mission.name} onChange={onChangeName}/>
                             {err.name && <p className="text-sm text-red-600">{err.name}</p>}
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="time" className="huninn-regular text-lg text-gray-700">זמן משימה משוערך (בדקות):</Label>
+                            <Input id="time" className="rounded flex-1" type="text" placeholder="הכנס זמן משימה משוערך (בדקות)"
+                            value={mission.time} onChange={onChangeTime}/>
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="platform_id" className="huninn-regular text-lg text-gray-700">בחירת פלטפורמה:</Label>
