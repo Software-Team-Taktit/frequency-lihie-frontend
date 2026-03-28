@@ -1,4 +1,3 @@
-// components/mission/MissionForm.tsx
 import React, { useEffect, useMemo, useState } from "react";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
@@ -17,27 +16,28 @@ import type {
   FrequencyRequest,
   FrequencyResponse,
 } from "../../interfaces/MissionInterface";
-const NEW_ENV_LABELS: Record<EnvType, string> = {
-    mount: "הררי",
-    urban: "עירוני",
-    open_space: "שטח פתוח",
-};
+
+const ENV_OPTIONS: { value: EnvType; label: string }[] = [
+  { value: "mount", label: "הררי" },
+  { value: "urban", label: "עירוני" },
+  { value: "open_space", label: "שטח פתוח" },
+];
 
 export type MissionFormProps = {
   mode: "create" | "edit";
-  initial: Mission;                
-  onSaved?: (m: Mission) => void;   
-  onCancel?: () => void;        
+  initial: Mission;
+  onSaved?: (m: Mission) => void;
+  onCancel?: () => void;
 };
 
 type Coord = { lat: number | null; lon: number | null };
 
-export default function MissionForm({initial, onSaved, onCancel }: MissionFormProps) {
+export default function MissionForm({ initial, onSaved, onCancel }: MissionFormProps) {
   const [platforms, setPlatforms] = useState<Platform[]>([]);
   const [loadingPlatforms, setLoadingPlatforms] = useState(false);
 
-
   const [envCode, setEnvCode] = useState<string>("");
+  const [selectedEnvType, setSelectedEnvType] = useState<EnvType | "">("");
 
   const [mission, setMission] = useState({
     name: initial?.name ?? "",
@@ -87,44 +87,59 @@ export default function MissionForm({initial, onSaved, onCancel }: MissionFormPr
     });
   }, [initial]);
 
-  const calculateEnvType = (mapCode:MapCodetype): EnvType => {
+  const calculateEnvType = (mapCode: MapCodetype): EnvType => {
     if (mapCode === "mount") return "mount";
+
     const denseCodes: MapCodetype[] = [
       "very_dense_urban",
       "dense_urban",
       "urban",
       "suburban",
     ];
+
     if (denseCodes.includes(mapCode)) return "urban";
     return "open_space";
-  }
+  };
 
-  const finalEnvType = useMemo<EnvType | undefined>(() => {
+  const autoEnvType = useMemo<EnvType | undefined>(() => {
     if (!envCode) return undefined;
     return calculateEnvType(envCode as MapCodetype);
   }, [envCode]);
 
-  const finalEnvLabel = useMemo<string>(() => {
-    if (!finalEnvType) return "";
-    return NEW_ENV_LABELS[finalEnvType] || "סביבה לא מזוהה";
-  }, [finalEnvType]);
-
+  const finalEnvType = useMemo<EnvType | undefined>(() => {
+    return selectedEnvType || autoEnvType;
+  }, [selectedEnvType, autoEnvType]);
 
   const validate = (): boolean => {
     let valid = true;
-    const tmp = { name: "", time: "", enviroment_type: "", lat: "", lon: "", platform_id: "", frequency:""};
+    const tmp = {
+      name: "",
+      time: "",
+      enviroment_type: "",
+      lat: "",
+      lon: "",
+      platform_id: "",
+      frequency: "",
+    };
 
-    if (!mission.name.trim()) {                
+    if (!mission.name.trim()) {
       tmp.name = "שם משימה הוא שדה חובה";
       valid = false;
     } else if (mission.name.trim().length < 2) {
       tmp.name = "שם המשימה צריך להכיל לפחות 2 תווים";
       valid = false;
     }
+
     if (mission.time <= 0) {
       tmp.time = "חובה להוסיף זמן משוערך למשימה!";
       valid = false;
     }
+
+    if (!finalEnvType) {
+      tmp.enviroment_type = "בחר/י סוג סביבה";
+      valid = false;
+    }
+
     if (coord.lat == null || coord.lon == null) {
       tmp.lat = "בחר/י נקודה על המפה.";
       tmp.lon = "";
@@ -166,9 +181,13 @@ export default function MissionForm({initial, onSaved, onCancel }: MissionFormPr
     if (err.time) setErr((prev) => ({ ...prev, time: "" }));
   };
 
-  const onChangeEnv = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setMission((p) => ({ ...p, enviroment_type: e.target.value }));
-    if (err.enviroment_type) setErr((prev) => ({ ...prev, enviroment_type: "" }));
+  const onChangeEnv = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    const value = e.target.value as EnvType | "";
+    setSelectedEnvType(value);
+
+    if (err.enviroment_type) {
+      setErr((prev) => ({ ...prev, enviroment_type: "" }));
+    }
   };
 
   const onChangePlatform = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -177,31 +196,35 @@ export default function MissionForm({initial, onSaved, onCancel }: MissionFormPr
   };
 
   const handlePickFromMap = (picked: EnvPicker) => {
+    const detectedEnv = calculateEnvType(picked.code as MapCodetype);
     setEnvCode(picked.code);
+    setSelectedEnvType(detectedEnv);
     setCoord({ lat: picked.lat, lon: picked.lon });
     setErr((e) => ({ ...e, enviroment_type: "", lat: "", lon: "" }));
     setShowPicker(false);
   };
 
   const handleRequestFrequency = async () => {
-    setErr((prev) => ({...prev, frequency: ""}));
+    setErr((prev) => ({ ...prev, frequency: "" }));
 
-    if(!validate()) return;
+    if (!validate()) return;
 
-    if(!finalEnvType || coord.lat == null || coord.lon == null){
+    if (!finalEnvType || coord.lat == null || coord.lon == null) {
       setErr((prev) => ({
         ...prev,
-        enviroment_type:"יש לבחור נקודה חדשה על המפה כדי לחשב תדר מחדש!"
+        enviroment_type: "יש לבחור סוג סביבה ונקודה על המפה כדי לחשב תדר מחדש!",
       }));
       return;
     }
+
     const freqReq: FrequencyRequest = {
       name: mission.name.trim(),
-      coordinate: {latitude: coord.lat, longitude: coord.lon},
+      coordinate: { latitude: coord.lat, longitude: coord.lon },
       enviroment_type: finalEnvType,
       platform_id: mission.platform_id,
     };
-    try{
+
+    try {
       setFreqLoading(true);
       setFreqResult(null);
 
@@ -210,24 +233,31 @@ export default function MissionForm({initial, onSaved, onCancel }: MissionFormPr
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(freqReq),
       });
-      if(!res.ok){ throw new Error("Frequency API returned error");}
-      
+
+      if (!res.ok) {
+        throw new Error("Frequency API returned error");
+      }
+
       const data = (await res.json()) as FrequencyResponse;
       setFreqResult(data);
-    } catch (e){
+    } catch (e) {
       console.error(e);
-      setErr((prev) => ({...prev, frequency:"שגיאה בקבלת התדר ועוצמת השידור"}));
+      setErr((prev) => ({ ...prev, frequency: "שגיאה בקבלת התדר ועוצמת השידור" }));
     } finally {
       setFreqLoading(false);
     }
-  }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validate()) return;
 
-    if(!freqResult){
-      setErr((prev) => ({...prev, frequency:"אין נתוני תדר / עוצמת שידור.ניתן לעדכן בלי לחשב מחדש רק אם הערכים נשארים כמו הערכים הקודמים."}));
+    if (!freqResult) {
+      setErr((prev) => ({
+        ...prev,
+        frequency:
+          "אין נתוני תדר / עוצמת שידור. ניתן לעדכן בלי לחשב מחדש רק אם הערכים נשארים כמו הערכים הקודמים.",
+      }));
       return;
     }
 
@@ -240,14 +270,14 @@ export default function MissionForm({initial, onSaved, onCancel }: MissionFormPr
       platform_id: mission.platform_id,
     };
 
-    try{
+    try {
       const saved = await (MissionsApi as any).update(initial.id, dto);
       onSaved?.(saved);
-    } catch (ex : any){
+    } catch (ex: any) {
       console.error(ex);
-      setErr((p)=> ({
+      setErr((p) => ({
         ...p,
-        frequency:"שגיאה בעדכון המשימה",
+        frequency: "שגיאה בעדכון המשימה",
       }));
     }
   };
@@ -257,11 +287,20 @@ export default function MissionForm({initial, onSaved, onCancel }: MissionFormPr
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
       <div className="space-y-2">
-        <Label htmlFor="name" className="huninn-regular text-lg text-gray-700">שם המשימה:</Label>
-        <Input id="name" type="text" className="rounded flex-1" placeholder="הכנס שם משימה" value={mission.name} 
-        onChange={onChangeName}/>
+        <Label htmlFor="name" className="huninn-regular text-lg text-gray-700">
+          שם המשימה:
+        </Label>
+        <Input
+          id="name"
+          type="text"
+          className="rounded flex-1"
+          placeholder="הכנס שם משימה"
+          value={mission.name}
+          onChange={onChangeName}
+        />
         {err.name && <p className="text-sm text-red-600">{err.name}</p>}
       </div>
+
       <div className="space-y-2">
         <Label htmlFor="time" className="huninn-regular text-lg text-gray-700">
           זמן משימה משוערך (בדקות):
@@ -277,6 +316,7 @@ export default function MissionForm({initial, onSaved, onCancel }: MissionFormPr
         />
         {err.time && <p className="text-sm text-red-600">{err.time}</p>}
       </div>
+
       <div className="space-y-2">
         <Label htmlFor="platform_id" className="huninn-regular text-lg text-gray-700">
           בחירת פלטפורמה:
@@ -303,14 +343,20 @@ export default function MissionForm({initial, onSaved, onCancel }: MissionFormPr
           סוג הסביבה (לחישוב מחדש):
         </Label>
         <div className="flex gap-2">
-          <Input
+          <select
             id="enviroment_type"
-            className="rounded flex-1"
-            type="text"
-            placeholder="נבחר אוטומטית מהמפה (ניתן לשינוי ידני)"
-            value={finalEnvLabel}
+            className="w-full rounded border border-gray-300 p-2"
+            value={selectedEnvType}
             onChange={onChangeEnv}
-          />
+          >
+            <option value="">בחר סוג סביבה...</option>
+            {ENV_OPTIONS.map((option) => (
+              <option key={option.value} value={option.value}>
+                {option.label}
+              </option>
+            ))}
+          </select>
+
           <Button type="button" onClick={() => setShowPicker(true)}>
             בחירה מהמפה
           </Button>
@@ -327,43 +373,45 @@ export default function MissionForm({initial, onSaved, onCancel }: MissionFormPr
       </div>
 
       <div className="space-y-2 border-t pt-4">
-          <Button
+        <Button
           type="button"
           className="w-full huninn-regular shadow-md hover:text-blue-600"
           onClick={handleRequestFrequency}
-          disabled={freqLoading}>
-            {
-              freqLoading ? "מבקש תדר ועוצמת שידור..." : "קבלת תדר ועוצמת שידור מתאימה"
-            }
-          </Button>
-          {
-            err.frequency && (
-              <p className="text-sm text-red-600">{err.frequency}</p>
-            )
-          }
-          {
-            freqResult && (
-              <div className="mt-3 rounded border border-gray-200 bg-gray-50 p-3 space-y-1 huninn-regular text-gray-800">
-                <div>
-                  <strong>תדר שנבחר (MHz): </strong>
-                  {freqResult.freq_mhz.toFixed(3)}
-                </div>
-                <div>
-                  <strong>עוצמת שידור שנבחרה (dBm): </strong>
-                  {freqResult.tx_power_dbm.toFixed(2)}
-                </div>
-              </div>
-            )
-          }
+          disabled={freqLoading}
+        >
+          {freqLoading ? "מבקש תדר ועוצמת שידור..." : "קבלת תדר ועוצמת שידור מתאימה"}
+        </Button>
+
+        {err.frequency && <p className="text-sm text-red-600">{err.frequency}</p>}
+
+        {freqResult && (
+          <div className="mt-3 rounded border border-gray-200 bg-gray-50 p-3 space-y-1 huninn-regular text-gray-800">
+            <div>
+              <strong>תדר שנבחר (MHz): </strong>
+              {freqResult.freq_mhz.toFixed(3)}
+            </div>
+            <div>
+              <strong>עוצמת שידור שנבחרה (dBm): </strong>
+              {freqResult.tx_power_dbm.toFixed(2)}
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="flex gap-2 justify-end pt-2">
         {onCancel && (
-          <Button type="button" onClick={onCancel} className="hover:text-blue-900 border rounded-xl text-right huninn-regular border-black">
+          <Button
+            type="button"
+            onClick={onCancel}
+            className="hover:text-blue-900 border rounded-xl text-right huninn-regular border-black"
+          >
             ביטול
           </Button>
         )}
-        <Button className="hover:text-blue-900 border rounded-xl text-right huninn-regular border-black" type="submit">
+        <Button
+          className="hover:text-blue-900 border rounded-xl text-right huninn-regular border-black"
+          type="submit"
+        >
           {submitLabel}
         </Button>
       </div>
