@@ -1,8 +1,8 @@
 import type { Mission } from "../interfaces/MissionInterface";
-export type MissionActivityFilter = "all" | "active" | "inactive";
+export type MissionActivityFilterValue = "all" | "active" | "inactive";
 
 export const missionActivityFilterOptions: {
-    value: MissionActivityFilter;
+    value: MissionActivityFilterValue;
     label: string;
 }[] = [
     { value: "all", label: "כל המשימות" },
@@ -12,7 +12,7 @@ export const missionActivityFilterOptions: {
 
 export function filterMissionByActivity(
     missions: Mission[],
-    filter: MissionActivityFilter
+    filter: MissionActivityFilterValue
 ) : Mission[] {
     switch(filter) {
         case "active":
