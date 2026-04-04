@@ -7,7 +7,7 @@ import { PlatformsApi } from "../../services/PlatformApi";
 import { MissionsApi } from "../../services/MissionApi";
 import type { Platform } from "@/interfaces/PlatformInterface";
 import MapPicker from "../mapPicker/MapPicker"; 
-import type {EnvPicker} from "../mapPicker/MapPicker";
+import type { EnvPicker } from "../mapPicker/MapPicker";
 import type {
     CreateMissionRequest,
     EnvType,
@@ -16,6 +16,7 @@ import type {
     FrequencyResponse,
 } from "../../interfaces/MissionInterface";
 import { BASE_URL } from "../../services/BaseApi";
+import { resolveEnviromentByCoords } from "../../lib/resolveEnviromentByCoords";
 
 const ENV_OPTIONS: { value: EnvType; label: string }[] = [
     { value: "mount", label: "הררי" },
@@ -35,6 +36,8 @@ function Mission() {
 
     type Coord = {lat: number | null, lon: number | null};
     const [coord, setCoord] = useState<Coord>({lat: null, lon: null});
+
+    const [manualCoord, setManualCoord] = useState({lat: "", lon: ""});
 
     const [err, setErr] = useState({
         name: "",
@@ -87,8 +90,32 @@ function Mission() {
         return selectedEnvType || autoEnvType;
     }, [selectedEnvType, autoEnvType]);
 
+    const clearFrequencyResult = () => {
+        setFreqResult(null);
+        setErr((prev) => ({ ...prev, frequency: "" }));
+    }
+
+    const applyPickedPoint = (picked: EnvPicker) => {
+        const detectedEnv = calculateEnvType(picked.code as MapCodetype);
+
+        setEnvCode(picked.code);
+        setSelectedEnvType(detectedEnv);
+        setCoord({lat: picked.lat, lon: picked.lon});
+        setManualCoord({lat: String(picked.lat), lon: String(picked.lon)});
+
+        setErr((prev) => ({
+            ...prev,
+            enviroment_type: "",
+            lat: "",
+            lon: "",
+        }));
+
+        clearFrequencyResult();
+    }
+
     const validateMission = () : boolean => {
         let valid = true;
+
         const tmp = {
             name: "",
             time: "",
@@ -108,12 +135,12 @@ function Mission() {
         }
 
         if (!finalEnvType) {
-            tmp.enviroment_type = "בחר/י נקודה על המפה";
+            tmp.enviroment_type = "בחר/י נקודה על המפה או הזן/י נ.צ.";
             valid = false;
         }
 
         if(coord.lat == null || coord.lon == null){
-            tmp.lat = "בחר/י נקודה על המפה.";
+            tmp.lat = "בחר/י נקודה על המפה או הזן/י נ.צ.";
             tmp.lon = "";
             valid=false;
         } else {
@@ -144,11 +171,13 @@ function Mission() {
             return;
         }
         setMission(prev => ({ ...prev, time: newTime }));
+        if (err.time) setErr(prev => ({ ...prev, time: ""}));
     }
     
     const onChangeEnv = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const value = e.target.value as EnvType | "";
         setSelectedEnvType(value);
+        clearFrequencyResult();
 
         if (err.enviroment_type) {
             setErr((prev) => ({ ...prev, enviroment_type: "" }));
@@ -157,17 +186,32 @@ function Mission() {
 
     const onChangePlatform = (e: React.ChangeEvent<HTMLSelectElement>) => {
         setMission(p => ({ ...p, platform_id: e.target.value }));
+        clearFrequencyResult();
         if (err.platform_id) setErr(prev => ({ ...prev, platform_id: "" }));
     };
 
     const handlePickFromMap = (picked: EnvPicker) => {
-        const detectedEnv = calculateEnvType(picked.code as MapCodetype);
-        setEnvCode(picked.code);
-        setSelectedEnvType(detectedEnv);
-        setCoord({ lat: picked.lat, lon: picked.lon });
-        setErr((e) => ({ ...e, enviroment_type: "", lat: "", lon: "" }));
+        applyPickedPoint(picked);
         setShowPicker(false);
     };
+
+    const handleResolveManualCoords = () => {
+        const lat = Number(manualCoord.lat.trim().replace(",", "."));
+        const lon = Number(manualCoord.lon.trim().replace(",", "."));
+
+        const result = resolveEnviromentByCoords(lat, lon);
+
+        if (!result.ok) {
+            setErr((prev) => ({
+                ...prev,
+                lat: result.error,
+                lon: ""
+            }));
+            return;
+        }
+
+        applyPickedPoint(result.picked);
+    }
 
     const handleRequestFrequency = async () => {
         setErr((prev) => ({...prev, frequency: ""}));
@@ -248,12 +292,12 @@ function Mission() {
 
     
     return (
-        <main className=" p-5">
+        <main className="p-5">
             <div className="bg-blue-100 rounded-xl p-8 md:p-10 w-[1800px] h-[750px] mx-auto shadow-md flex items-center justify-center">
-                <div className="bg-white p-8 md:p-10 rounded-2xl shadow-2xl w-full max-w-md space-y-6">
+                <div className="bg-white p-8 md:p-10 rounded-2xl shadow-2xl w-full max-w-md max-h-[650px] overflow-y-auto space-y-6">
                     <h1 className="suez-one-regular text-6xl text-center text-blue-700">קליטת משימה</h1>
 
-                    <form onSubmit={handleSubmit} className="space-y-4">
+                    <form onSubmit={handleSubmit} className="space-y-3">
                         <div className="space-y-2">
                             <Label htmlFor="name" className="huninn-regular text-lg text-gray-700">שם המשימה:</Label>
                             <Input id="name" className="rounded flex-1" type="text" placeholder="הכנס שם משימה"
@@ -300,6 +344,35 @@ function Mission() {
                                 <Button className="huninn-regular" type="button" onClick={()=> setShowPicker(true)}>בחירה מהמפה</Button>
                             </div>
                             {err.enviroment_type && <p className="text-sm text-red-600">{err.enviroment_type}</p>}
+                        </div>
+
+                        <div className="space-y-2">
+                            <Label className="huninn-regular text-lg text-gray-700">הזנת נ.צ. ידנית: </Label>
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                                <Input
+                                    dir="rtl"    
+                                    type="text"
+                                    placeholder="Latitude"
+                                    value={manualCoord.lat}
+                                    onChange={(e) =>{
+                                        setManualCoord((prev) => ({...prev, lat: e.target.value}));
+                                        if(err.lat) setErr((prev) => ({...prev, lat : ""}));
+                                    }}
+                                />
+                                <Input
+                                    dir="rtl"    
+                                    type="text"
+                                    placeholder="Longitude"
+                                    value={manualCoord.lon}
+                                    onChange={(e) =>{
+                                        setManualCoord((prev) => ({...prev, lon: e.target.value}));
+                                        if(err.lat) setErr((prev) => ({...prev, lon : ""}));
+                                    }}
+                                />
+                                <Button className="huninn-regular" type="button" onClick={handleResolveManualCoords}>
+                                    בדיקת נ.צ.
+                                </Button>
+                            </div>
                         </div>
                         <div className="space-y-1">
                             <Label className="huninn-regular text-lg text-gray-700">נקודת הציון שנבחרה:</Label>
