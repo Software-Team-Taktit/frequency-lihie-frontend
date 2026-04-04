@@ -6,6 +6,7 @@ import MapPicker, { type EnvPicker } from "../mapPicker/MapPicker";
 import { PlatformsApi } from "../../services/PlatformApi";
 import { MissionsApi } from "../../services/MissionApi";
 import { BASE_URL } from "../../services/BaseApi";
+import { resolveEnviromentByCoords } from "../../lib/resolveEnviromentByCoords";
 
 import type { Platform } from "@/interfaces/PlatformInterface";
 import type {
@@ -48,6 +49,11 @@ export default function MissionForm({ initial, onSaved, onCancel }: MissionFormP
   const [coord, setCoord] = useState<Coord>({
     lat: initial?.coordinate?.latitude ?? null,
     lon: initial?.coordinate?.longitude ?? null,
+  });
+
+  const [manualCoord, setManualCoord] = useState({
+    lat: initial?.coordinate?.latitude != null ? String(initial.coordinate.latitude) : "",
+    lon: initial?.coordinate?.longitude != null ? String(initial.coordinate.longitude) : "",
   });
 
   const [err, setErr] = useState({
@@ -110,8 +116,29 @@ export default function MissionForm({ initial, onSaved, onCancel }: MissionFormP
     return selectedEnvType || autoEnvType;
   }, [selectedEnvType, autoEnvType]);
 
+  const clearFrequencyResult = () => {
+    setFreqResult(null);
+    setErr((prev) => ({ ...prev, frequency: "" }));
+  };
+
+  const applyPickedPoint = (picked: EnvPicker) => {
+    const detectedEnv = calculateEnvType(picked.code as MapCodetype);
+
+    setEnvCode(picked.code);
+    setSelectedEnvType(detectedEnv);
+    setCoord({ lat: picked.lat, lon: picked.lon });
+    setManualCoord({
+      lat: String(picked.lat),
+      lon: String(picked.lon),
+    });
+
+    setErr((e) => ({ ...e, enviroment_type: "", lat: "", lon: "" }));
+    clearFrequencyResult();
+  };
+
   const validate = (): boolean => {
     let valid = true;
+
     const tmp = {
       name: "",
       time: "",
@@ -136,12 +163,12 @@ export default function MissionForm({ initial, onSaved, onCancel }: MissionFormP
     }
 
     if (!finalEnvType) {
-      tmp.enviroment_type = "בחר/י סוג סביבה";
+      tmp.enviroment_type = 'בחר/י נקודה מהמפה או הזיני נ.צ.';
       valid = false;
     }
 
     if (coord.lat == null || coord.lon == null) {
-      tmp.lat = "בחר/י נקודה על המפה.";
+      tmp.lat = 'בחר/י נקודה מהמפה או הזיני נ.צ.';
       tmp.lon = "";
       valid = false;
     } else {
@@ -184,6 +211,7 @@ export default function MissionForm({ initial, onSaved, onCancel }: MissionFormP
   const onChangeEnv = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const value = e.target.value as EnvType | "";
     setSelectedEnvType(value);
+    clearFrequencyResult();
 
     if (err.enviroment_type) {
       setErr((prev) => ({ ...prev, enviroment_type: "" }));
@@ -192,16 +220,34 @@ export default function MissionForm({ initial, onSaved, onCancel }: MissionFormP
 
   const onChangePlatform = (e: React.ChangeEvent<HTMLSelectElement>) => {
     setMission((p) => ({ ...p, platform_id: e.target.value }));
-    if (err.platform_id) setErr((prev) => ({ ...prev, platform_id: "" }));
+    clearFrequencyResult();
+
+    if (err.platform_id) {
+      setErr((prev) => ({ ...prev, platform_id: "" }));
+    }
   };
 
   const handlePickFromMap = (picked: EnvPicker) => {
-    const detectedEnv = calculateEnvType(picked.code as MapCodetype);
-    setEnvCode(picked.code);
-    setSelectedEnvType(detectedEnv);
-    setCoord({ lat: picked.lat, lon: picked.lon });
-    setErr((e) => ({ ...e, enviroment_type: "", lat: "", lon: "" }));
+    applyPickedPoint(picked);
     setShowPicker(false);
+  };
+
+  const handleResolveManualCoords = () => {
+    const lat = Number(manualCoord.lat.trim().replace(",", "."));
+    const lon = Number(manualCoord.lon.trim().replace(",", "."));
+
+    const result = resolveEnviromentByCoords(lat, lon);
+
+    if (!result.ok) {
+      setErr((prev) => ({
+        ...prev,
+        lat: result.error,
+        lon: "",
+      }));
+      return;
+    }
+
+    applyPickedPoint(result.picked);
   };
 
   const handleRequestFrequency = async () => {
@@ -212,7 +258,7 @@ export default function MissionForm({ initial, onSaved, onCancel }: MissionFormP
     if (!finalEnvType || coord.lat == null || coord.lon == null) {
       setErr((prev) => ({
         ...prev,
-        enviroment_type: "יש לבחור סוג סביבה ונקודה על המפה כדי לחשב תדר מחדש!",
+        enviroment_type: "יש לבחור סוג סביבה ונקודה כדי לחשב תדר מחדש!",
       }));
       return;
     }
@@ -362,6 +408,35 @@ export default function MissionForm({ initial, onSaved, onCancel }: MissionFormP
           </Button>
         </div>
         {err.enviroment_type && <p className="text-sm text-red-600">{err.enviroment_type}</p>}
+      </div>
+
+      <div className="space-y-2">
+        <Label className="huninn-regular text-lg text-gray-700">הזנת נ.צ. ידנית:</Label>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+          <Input
+            dir="ltr"
+            type="text"
+            placeholder="Latitude"
+            value={manualCoord.lat}
+            onChange={(e) => {
+              setManualCoord((prev) => ({ ...prev, lat: e.target.value }));
+              if (err.lat) setErr((prev) => ({ ...prev, lat: "" }));
+            }}
+          />
+          <Input
+            dir="ltr"
+            type="text"
+            placeholder="Longitude"
+            value={manualCoord.lon}
+            onChange={(e) => {
+              setManualCoord((prev) => ({ ...prev, lon: e.target.value }));
+              if (err.lon) setErr((prev) => ({ ...prev, lon: "" }));
+            }}
+          />
+          <Button type="button" onClick={handleResolveManualCoords}>
+            בדיקת נ.צ.
+          </Button>
+        </div>
       </div>
 
       <div className="space-y-1">
