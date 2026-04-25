@@ -1,19 +1,21 @@
+import { Marker, Popup } from "react-leaflet";
 import { Button } from "../ui/button";
 import {
     resolveEnviromentByCoords,
     type ResolveEnvPoint
 } from "../../lib/resolveEnviromentByCoords";
 import BaseMap from "./BaseMap";
+import type { Mission } from "../../interfaces/MissionInterface";
 
 export type EnvPicker = ResolveEnvPoint;
 
-function MapPicker({
-  onPick,
-  onClose,
-}: {
-  onPick: (picked: EnvPicker) => void;
-  onClose: () => void;
-}) {
+type MapPickerProps = {
+    onPick: (picked: EnvPicker) => void;
+    onClose: () => void;
+    missions?: Mission[];
+};
+
+function MapPicker({ onPick, onClose, missions = [] }: MapPickerProps) {
     const handleClick = (lat: number, lon: number) => {
         const result = resolveEnviromentByCoords(lat, lon);
 
@@ -36,7 +38,25 @@ function MapPicker({
                     </Button>
                 </div>
                 <div className="flex-1">
-                    <BaseMap onMapClick={handleClick}/>
+                    <BaseMap onMapClick={handleClick}>
+                        {missions.map((mission) => (
+                            <Marker
+                                key={mission.id}
+                                position={[
+                                    mission.coordinate.latitude,
+                                    mission.coordinate.longitude,
+                                ]}
+                            >
+                                <Popup>
+                                    <div dir="rtl" className="text-right">
+                                        <strong>{mission.name}</strong>
+                                        <br />
+                                        {mission.is_active ? "פעיל" : "לא פעיל"}
+                                    </div>
+                                </Popup>
+                            </Marker>
+                        ))}
+                    </BaseMap>
                 </div>
             </div>
         </div>

@@ -36,6 +36,7 @@ type Coord = { lat: number | null; lon: number | null };
 export default function MissionForm({ initial, onSaved, onCancel }: MissionFormProps) {
   const [platforms, setPlatforms] = useState<Platform[]>([]);
   const [loadingPlatforms, setLoadingPlatforms] = useState(false);
+  const [missionsOnMap, setMissionsOnMap] = useState<Mission[]>([]);
 
   const [envCode, setEnvCode] = useState<string>("");
   const [selectedEnvType, setSelectedEnvType] = useState<EnvType | "">("");
@@ -77,6 +78,9 @@ export default function MissionForm({ initial, onSaved, onCancel }: MissionFormP
         setLoadingPlatforms(true);
         const list = await PlatformsApi.list();
         setPlatforms(Array.isArray(list) ? list : []);
+
+        const missions = await MissionsApi.list();
+        setMissionsOnMap(Array.isArray(missions) ? missions : []);
       } catch (e) {
         console.error(e);
         setErr((p) => ({ ...p, platform_id: "שגיאה בטעינות הפלטפורמות" }));
@@ -492,7 +496,7 @@ export default function MissionForm({ initial, onSaved, onCancel }: MissionFormP
       </div>
 
       {showPicker && (
-        <MapPicker onPick={handlePickFromMap} onClose={() => setShowPicker(false)} />
+        <MapPicker onPick={handlePickFromMap} onClose={() => setShowPicker(false)} missions={missionsOnMap}/>
       )}
     </form>
   );

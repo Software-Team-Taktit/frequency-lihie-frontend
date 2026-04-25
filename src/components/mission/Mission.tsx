@@ -8,12 +8,13 @@ import { MissionsApi } from "../../services/MissionApi";
 import type { Platform } from "@/interfaces/PlatformInterface";
 import MapPicker from "../map/MapPicker"; 
 import type { EnvPicker } from "../map/MapPicker";
-import type {
-    CreateMissionRequest,
-    EnvType,
-    MapCodetype,
-    FrequencyRequest,
-    FrequencyResponse,
+import {
+    type CreateMissionRequest,
+    type EnvType,
+    type MapCodetype,
+    type FrequencyRequest,
+    type FrequencyResponse,
+    type Mission as MissionType,
 } from "../../interfaces/MissionInterface";
 import { BASE_URL } from "../../services/BaseApi";
 import { resolveEnviromentByCoords } from "../../lib/resolveEnviromentByCoords";
@@ -30,6 +31,8 @@ function Mission() {
         time: 0,
         platform_id: ""
     });
+
+    const [missionsOnMap, setMissionsOnMap] = useState<MissionType[]>([]);
 
     const [envCode, setEnvCode] = useState<string>("");
     const [selectedEnvType, setSelectedEnvType] = useState<EnvType | "">("");
@@ -62,6 +65,9 @@ function Mission() {
             try{
                 const list = await PlatformsApi.list();
                 setPlatforms(list);
+
+                const missions = await MissionsApi.list();
+                setMissionsOnMap(Array.isArray(missions) ? missions : []);
             } catch (e) {
                 console.error(e);
                 setErr(p => ({...p, platform_id: "שגיאה בטעינות הפלטפורמות"}));
@@ -422,7 +428,7 @@ function Mission() {
             </div>
             {
                 showPicker && (
-                    <MapPicker onPick={handlePickFromMap} onClose={() => setShowPicker(false)}/>
+                    <MapPicker onPick={handlePickFromMap} onClose={() => setShowPicker(false)} missions={missionsOnMap}/>
                 )
             }
         </main>
