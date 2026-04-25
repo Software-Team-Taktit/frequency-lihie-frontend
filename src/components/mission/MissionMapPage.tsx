@@ -80,7 +80,7 @@ function MissionMapPage() {
                         ))}
                     </BaseMap>
                 </div>
-                <div className="rounded-2xl border border-black bg-white shadow-md p-4 overflow-y-auto">
+                <div className="rounded-2xl border border-black bg-blue-200 shadow-md p-4 overflow-y-auto">
                     {selectedMission ? (
                         <MissionCard
                             m={selectedMission}
