@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { Button } from "../ui/button";
-import MapPicker, { type EnvPicker } from "../mapPicker/MapPicker";
+import MapPicker, { type EnvPicker } from "../map/MapPicker";
 import { PlatformsApi } from "../../services/PlatformApi";
 import { MissionsApi } from "../../services/MissionApi";
 import { BASE_URL } from "../../services/BaseApi";

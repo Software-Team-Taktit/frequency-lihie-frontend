@@ -6,8 +6,8 @@ import { useNavigate } from "react-router-dom";
 import { PlatformsApi } from "../../services/PlatformApi";
 import { MissionsApi } from "../../services/MissionApi";
 import type { Platform } from "@/interfaces/PlatformInterface";
-import MapPicker from "../mapPicker/MapPicker"; 
-import type { EnvPicker } from "../mapPicker/MapPicker";
+import MapPicker from "../map/MapPicker"; 
+import type { EnvPicker } from "../map/MapPicker";
 import type {
     CreateMissionRequest,
     EnvType,
