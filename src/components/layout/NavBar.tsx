@@ -96,6 +96,9 @@ function NavBar() {
                     <div className="flex items-center gap-4 ">
                         <Link to="/platform" className="hover:text-blue-600 transition-all huninn-regular mr-5">פלטפורמה</Link>
                         <Link to="/mission" className="hover:text-blue-600 transition-all huninn-regular mr-5">משימה</Link>
+                        <Link to="/missionsMap" className="hover:text-blue-600 transition-all huninn-regular mr-5">
+                            מפת משימות
+                        </Link>
                         <div className="w-64 mr-6 mt-2">
                             <div className="h-2 w-full bg-gray-200 overflow-hidden">
                                 <div className="h-full w-full bg-blue-500" />
