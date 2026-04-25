@@ -10,6 +10,7 @@ import PlatformGallery from './components/platform/PlatformGallery.tsx';
 import MissionGallery from './components/mission/MissionGallery.tsx';
 import Platform from './components/platform/Platform.tsx';
 import Mission from './components/mission/Mission.tsx';
+import MissionMapPage from './components/mission/MissionMapPage.tsx';
 import { AuthProvider } from './context/AuthContext.tsx';
 import './index.css'
 
@@ -47,6 +48,9 @@ const router = createBrowserRouter([
       }, {
         path: "missionForm",
         element: <Mission/>
+      }, {
+        path: "missionsMap",
+        element: <MissionMapPage/>
       }
     ]
   }
