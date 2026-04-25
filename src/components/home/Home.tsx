@@ -15,6 +15,7 @@ function Home() {
                     <div className="flex justify-center gap-6 pt-6">
                         <Button className="bg-blue-500 hover:bg-blue-200 text-white px-6 py-3 rounded-lg shadow-md text-lg huninn-regular transition duration-200" variant="outline" onClick={() => navigate("/platform")}>פלטפורמות</Button>
                         <Button className="bg-blue-500 hover:bg-blue-200 text-white px-6 py-3 rounded-lg shadow-md text-lg huninn-regular transition duration-200" variant="outline" onClick={() => navigate("/mission")}>משימות</Button>
+                        <Button className="bg-blue-500 hover:bg-blue-200 text-white px-6 py-3 rounded-lg shadow-md text-lg huninn-regular transition duration-200" variant="outline" onClick={() => navigate("/missionsMap")}>מפת משימות</Button>
                     </div>
                 </div>
             </div>
