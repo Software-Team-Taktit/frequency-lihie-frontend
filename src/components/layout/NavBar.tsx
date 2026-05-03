@@ -6,6 +6,7 @@ import merhavim_logo from "../../assets/merhavim_logo.png";
 import  { getFrequencyRange, updateFrequencyRange } from "../../services/ConfigApi.ts";
 import type { FrequencyRangeConfig } from "../../services/ConfigApi.ts";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '../ui/dialog.tsx';
+import UserProfilePanel from '../profile/UserProfilePanel.tsx';
 import { Label } from '@radix-ui/react-label';
 import { Input } from '../ui/input.tsx';
 
@@ -24,6 +25,7 @@ function NavBar() {
     const [draftMax, setDraftMax] = useState<string>("");
     const [saving, setSaving] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [profileOpen, setProfileOpen] = useState(false);
 
     const handleLogout = () =>{
         logout();
@@ -141,7 +143,7 @@ function NavBar() {
                     </div>
                 </div>
 
-                <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-4 text-right leading-tight" dir='rtl'>
                     {
                         !user ? (
                             <>
@@ -150,12 +152,30 @@ function NavBar() {
                             </>
                         ) : (<>
                                 <Button className="huninn-regular hover:text-blue-600 font-bold text-2xl px-4 py-2 ml-4 text-gray-800 m" onClick={handleLogout}>התנתקות</Button>
-                                <div className="text-right leading-tight text-2xl">
-                                    <div className="font-semibold text-gray-800 dark:text-gray-100 huninn-regular">
+                                <div className="flex flex-col items-end text-right leading-tight" dir="rtl">
+                                    <button
+                                        type="button"
+                                        onClick={() => setProfileOpen(true)}
+                                        className="p-0 m-0 bg-transparent border-none shadow-none text-right huninn-regular text-2xl font-semibold text-gray-800 hover:text-blue-600 transition-colors cursor-pointer"
+                                        dir="rtl"
+                                    >
                                         {user.first_name} {user.last_name} - {user.unit}
+                                    </button>
+
+                                    <div
+                                        className="mt-1 text-xs text-gray-500 huninn-regular flex flex-row-reverse items-center justify-start gap-1 w-full text-right"
+                                        dir="rtl"
+                                    >
+                                        <span className="whitespace-nowrap">
+                                            {user.type === "admin" ? "מנהל מערכת" : "משתמש"}
+                                        </span>
+
+                                        <span>-</span>
+
+                                        <span className="whitespace-nowrap" dir="ltr">
+                                            {user.personal_id}
+                                        </span>
                                     </div>
-                                    <div className="text-xs text-gray-500">{user.type === "admin" ? 
-                                    `${user.personal_id} - administrator` : user.personal_id}</div>
                                 </div>
                             </>
                         )
@@ -217,6 +237,10 @@ function NavBar() {
                     </Dialog>
                 )
             }
+            <UserProfilePanel
+                open={profileOpen}
+                onOpenChange={setProfileOpen}
+            />
         </header>
     )
 }
