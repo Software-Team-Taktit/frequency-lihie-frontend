@@ -9,6 +9,7 @@ function MissionCard({m, onEdit, onDelete} : {
     m: Mission;
     onEdit: (m: Mission) => void;
     onDelete: (m: Mission) => void;
+    onFinish: (m: Mission) => void;
 }) {
     const [platformName, setPlatformName] = useState<string>("טוען...");
     useEffect(()=>{
@@ -43,7 +44,7 @@ function MissionCard({m, onEdit, onDelete} : {
                 <div><strong className="huninn-bold">זמן משוערך למשימה:</strong><span className="huninn-regular"> {m.time} דקות</span></div>
                 <div><strong className="huninn-bold">תדר המשימה (MHz): </strong><span className="huninn-regular">{m.freq_mhz}</span></div>
                 <div><strong className="huninn-bold">עוצמת שידור (dBm): </strong><span className="huninn-regular">{m.tx_power_dbm}</span></div>
-                <div><strong className="huninn-bold">נקודת ציון: </strong><span className="huninn-regular"> latitude - {m.coordinate.latitude}, longitude - {m.coordinate.longitude}</span></div>
+                <div><strong className="huninn-bold">נקודת ציון: </strong><span className="huninn-regular"> latitude - {m.coordinate.latitude.toFixed(2)}, longitude - {m.coordinate.longitude.toFixed(2)}</span></div>
                 <div><strong className="huninn-bold">שם הפלטפורמה המשויכת: </strong><span className="huninn-regular">{platformName}</span></div>
             </CardContent>
             <CardFooter className="mt-auto flex justify-end gap-2">
