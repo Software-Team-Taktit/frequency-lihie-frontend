@@ -6,6 +6,7 @@ import { Input } from "../ui/input";
 import { Label } from "../ui/label";
 import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/AuthContext";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../../components/ui/dialog";
 import {PlatformsApi} from "../../services/PlatformApi";
 
@@ -13,6 +14,15 @@ function PlatformGallery() {
     const [items, setItems] = useState<Platform[] | null>(null);
     const [error, setError] = useState<String | null>(null);
     const [editing, setEditing] = useState<Platform | null>(null);
+    const [loginDialogOpen, setLoginDialogOpen] = useState(false);
+    type LoginDialogAction = "create" | "update" | "delete";
+    const loginDialogText: Record<LoginDialogAction, string> = {
+        create: "ליצור",
+        update: "לעדכן",
+        delete: "למחוק",
+    }
+    const [loginDialogAction, setLoginDialogAction] = useState<LoginDialogAction>("create");
+    const { user } = useAuth();
     const navigate = useNavigate();
     
     async function load() {
@@ -28,7 +38,33 @@ function PlatformGallery() {
 
     useEffect(() => {load();},[]);
 
+    function openLoginDialog(action: LoginDialogAction) {
+        setLoginDialogAction(action);
+        setLoginDialogOpen(true);
+    }
+
+    function handleCreatePlatformClick(){
+        if (!user) {
+            openLoginDialog("create");
+            return;
+        }
+        navigate("/platformForm");
+    }
+
+    function handleEditPlatformClick(p: Platform){
+        if (!user) {
+            openLoginDialog("update");
+            return;
+        }
+
+        setEditing(p);
+    }
+
     async function handleDelete(p: Platform) {
+        if (!user){
+            openLoginDialog("delete");
+            return;
+        }
         await (PlatformsApi as any).remove(p.id);
         await load();
     }
@@ -53,7 +89,7 @@ function PlatformGallery() {
         <div className="bg-blue-100 rounded-xl p-8 md:p-10 w-[1800px] h-[750px] mx-auto shadow-md flex flex-col gap-8">
             <div className="flex items-center justify-between">
                 <Button className="flex items-center gap-2 bg-white text-blue-600 hover:bg-blue-700 rounded-full px-4 py-2"
-                onClick={() => navigate("/platformForm")}>
+                onClick={handleCreatePlatformClick}>
                     <Plus className="w-4 h-4"/>
                 </Button>
                 <h1 className="suez-one-regular text-6xl text-center text-blue-700">פלטפורמות</h1>
@@ -63,7 +99,7 @@ function PlatformGallery() {
                 <section className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 auto-rows-max">
                     {items?.map((p:Platform) => (
                         <PlatformCard
-                        key={p.id} p={p} onEdit={setEditing} onDelete={handleDelete}/>
+                        key={p.id} p={p} onEdit={handleEditPlatformClick} onDelete={handleDelete}/>
                     ))}
                 </section>
             </div>
@@ -191,6 +227,31 @@ function PlatformGallery() {
                             ביטול
                         </Button>
                         <Button className="hover:text-blue-900 border rounded-xl text-right huninn-regular border-black" onClick={submitEdit}>שליחה</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={loginDialogOpen} onOpenChange={setLoginDialogOpen}>
+                <DialogContent className="sm:max-w-[600px] rounded-2xl bg-blue-100 border border-black" dir="rtl">
+                    <DialogHeader className="w-full text-right sm:text-right" dir="rtl">
+                        <DialogTitle className="w-full text-right sm:text-right text-2xl huninn-bold text-blue-700">
+                            אופס!
+                        </DialogTitle>
+                    </DialogHeader>
+
+                    <div className="huninn-regular text-lg text-gray-800 text-right leading-8">
+                        נראה שאת/ה לא מחובר/ת.
+                        <br/>
+                        כדי {loginDialogText[loginDialogAction]} פלטפורמה צריך להתחבר קודם.
+                    </div>
+
+                    <DialogFooter className="flex flex-row-reverse gap-3 mt-4">
+                        <Button
+                            className="rounded-xl bg-blue-400 text-white hover:bg-blue-500 huninn-regular"
+                            onClick={() => navigate("/login")}
+                        >
+                            להתחברות
+                        </Button>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
