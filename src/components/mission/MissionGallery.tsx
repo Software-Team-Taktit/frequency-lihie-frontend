@@ -29,6 +29,27 @@ function MissionGallery() {
         await load();
     }
 
+    const handleFinishMission = async (mission: Mission) => {
+        try {
+            const updatedMission = {
+                ...mission,
+                is_active: false,
+            };
+
+            await MissionsApi.update(mission.id, updatedMission);
+
+            setItems((prev) =>
+                prev
+                    ? prev.map((m) =>
+                        m.id === mission.id ? { ...m, is_active: false } : m
+                    )
+                    : prev
+            );
+        } catch (error) {
+            console.error("failed to finish mission: ", error);
+        }
+    }
+
     const filteredItems = useMemo(() => {
         return filterMissionByActivity(items ?? [], activityFilter);
     }, [items, activityFilter]);
@@ -67,6 +88,7 @@ function MissionGallery() {
                                     m={m}
                                     onEdit={setEditing}
                                     onDelete={handleDelete}
+                                    onFinish={handleFinishMission}
                                 />
                             ))}
                         </section>
