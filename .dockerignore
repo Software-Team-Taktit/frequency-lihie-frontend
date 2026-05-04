@@ -7,19 +7,33 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
+# Dependencies / builds
+node_modules/
+dist/
+dist-ssr/
+build/
+.vite/
+.cache/
 
+# Local files
+*.local
+.env
+.env.*
+
+# Project generated/cache files
 src/assets/tools/cache/*.json
 mount_polygons/*.tif
 
+# Git
+.git/
+.gitignore
+
 # Editor directories and files
-.vscode/*
+.vscode/
 !.vscode/extensions.json
-.idea
+.idea/
 .DS_Store
+Thumbs.db
 *.suo
 *.ntvs*
 *.njsproj
