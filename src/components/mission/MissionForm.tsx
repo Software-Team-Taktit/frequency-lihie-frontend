@@ -29,11 +29,18 @@ export type MissionFormProps = {
   initial: Mission;
   onSaved?: (m: Mission) => void;
   onCancel?: () => void;
+  onForbidden?: () => void;
 };
 
 type Coord = { lat: number | null; lon: number | null };
 
-export default function MissionForm({ initial, onSaved, onCancel }: MissionFormProps) {
+export default function MissionForm({
+  mode,
+  initial,
+  onSaved,
+  onCancel,
+  onForbidden,
+}: MissionFormProps) {
   const [platforms, setPlatforms] = useState<Platform[]>([]);
   const [loadingPlatforms, setLoadingPlatforms] = useState(false);
   const [missionsOnMap, setMissionsOnMap] = useState<Mission[]>([]);
@@ -76,6 +83,7 @@ export default function MissionForm({ initial, onSaved, onCancel }: MissionFormP
     (async () => {
       try {
         setLoadingPlatforms(true);
+
         const list = await PlatformsApi.list();
         setPlatforms(Array.isArray(list) ? list : []);
 
@@ -108,11 +116,13 @@ export default function MissionForm({ initial, onSaved, onCancel }: MissionFormP
     ];
 
     if (denseCodes.includes(mapCode)) return "urban";
+
     return "open_space";
   };
 
   const autoEnvType = useMemo<EnvType | undefined>(() => {
     if (!envCode) return undefined;
+
     return calculateEnvType(envCode as MapCodetype);
   }, [envCode]);
 
@@ -167,12 +177,12 @@ export default function MissionForm({ initial, onSaved, onCancel }: MissionFormP
     }
 
     if (!finalEnvType) {
-      tmp.enviroment_type = 'בחר/י נקודה מהמפה או הזיני נ.צ.';
+      tmp.enviroment_type = "בחר/י נקודה מהמפה או הזיני נ.צ.";
       valid = false;
     }
 
     if (coord.lat == null || coord.lon == null) {
-      tmp.lat = 'בחר/י נקודה מהמפה או הזיני נ.צ.';
+      tmp.lat = "בחר/י נקודה מהמפה או הזיני נ.צ.";
       tmp.lon = "";
       valid = false;
     } else {
@@ -180,6 +190,7 @@ export default function MissionForm({ initial, onSaved, onCancel }: MissionFormP
         tmp.lat = "קו רוחב חייב להיות בין 90- ל-90.";
         valid = false;
       }
+
       if (coord.lon < -180 || coord.lon > 180) {
         tmp.lon = "קו אורך חייב להיות בין 180- ל-180.";
         valid = false;
@@ -197,7 +208,10 @@ export default function MissionForm({ initial, onSaved, onCancel }: MissionFormP
 
   const onChangeName = (e: React.ChangeEvent<HTMLInputElement>) => {
     setMission((p) => ({ ...p, name: e.target.value }));
-    if (err.name) setErr((prev) => ({ ...prev, name: "" }));
+
+    if (err.name) {
+      setErr((prev) => ({ ...prev, name: "" }));
+    }
   };
 
   const onChangeTime = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -209,7 +223,10 @@ export default function MissionForm({ initial, onSaved, onCancel }: MissionFormP
     }
 
     setMission((prev) => ({ ...prev, time: newTime }));
-    if (err.time) setErr((prev) => ({ ...prev, time: "" }));
+
+    if (err.time) {
+      setErr((prev) => ({ ...prev, time: "" }));
+    }
   };
 
   const onChangeEnv = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -272,7 +289,9 @@ export default function MissionForm({ initial, onSaved, onCancel }: MissionFormP
       coordinate: { latitude: coord.lat, longitude: coord.lon },
       enviroment_type: finalEnvType,
       platform_id: mission.platform_id,
-      exclude_mission_id: initial.id
+      ...(mode === "edit" && initial.id
+        ? { exclude_mission_id: initial.id }
+        : {}),
     };
 
     try {
@@ -293,7 +312,10 @@ export default function MissionForm({ initial, onSaved, onCancel }: MissionFormP
       setFreqResult(data);
     } catch (e) {
       console.error(e);
-      setErr((prev) => ({ ...prev, frequency: "שגיאה בקבלת התדר ועוצמת השידור" }));
+      setErr((prev) => ({
+        ...prev,
+        frequency: "שגיאה בקבלת התדר ועוצמת השידור",
+      }));
     } finally {
       setFreqLoading(false);
     }
@@ -301,6 +323,7 @@ export default function MissionForm({ initial, onSaved, onCancel }: MissionFormP
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!validate()) return;
 
     if (!freqResult) {
@@ -322,10 +345,16 @@ export default function MissionForm({ initial, onSaved, onCancel }: MissionFormP
     };
 
     try {
-      const saved = await (MissionsApi as any).update(initial.id, dto);
+      const saved = await MissionsApi.update(initial.id, dto);
       onSaved?.(saved);
     } catch (ex: any) {
       console.error(ex);
+
+      if (ex?.status === 403) {
+        onForbidden?.();
+        return;
+      }
+
       setErr((p) => ({
         ...p,
         frequency: "שגיאה בעדכון המשימה",
@@ -333,7 +362,7 @@ export default function MissionForm({ initial, onSaved, onCancel }: MissionFormP
     }
   };
 
-  const submitLabel = "עדכון";
+  const submitLabel = mode === "edit" ? "עדכון" : "שמירה";
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -341,6 +370,7 @@ export default function MissionForm({ initial, onSaved, onCancel }: MissionFormP
         <Label htmlFor="name" className="huninn-regular text-lg text-gray-700">
           שם המשימה:
         </Label>
+
         <Input
           id="name"
           type="text"
@@ -349,6 +379,7 @@ export default function MissionForm({ initial, onSaved, onCancel }: MissionFormP
           value={mission.name}
           onChange={onChangeName}
         />
+
         {err.name && <p className="text-sm text-red-600">{err.name}</p>}
       </div>
 
@@ -356,6 +387,7 @@ export default function MissionForm({ initial, onSaved, onCancel }: MissionFormP
         <Label htmlFor="time" className="huninn-regular text-lg text-gray-700">
           זמן משימה משוערך (בדקות):
         </Label>
+
         <Input
           id="time"
           type="number"
@@ -365,6 +397,7 @@ export default function MissionForm({ initial, onSaved, onCancel }: MissionFormP
           value={mission.time}
           onChange={onChangeTime}
         />
+
         {err.time && <p className="text-sm text-red-600">{err.time}</p>}
       </div>
 
@@ -372,6 +405,7 @@ export default function MissionForm({ initial, onSaved, onCancel }: MissionFormP
         <Label htmlFor="platform_id" className="huninn-regular text-lg text-gray-700">
           בחירת פלטפורמה:
         </Label>
+
         <select
           id="platform_id"
           className="w-full rounded border border-gray-300 p-2"
@@ -379,20 +413,27 @@ export default function MissionForm({ initial, onSaved, onCancel }: MissionFormP
           onChange={onChangePlatform}
           disabled={loadingPlatforms}
         >
-          <option value="">{loadingPlatforms ? "טוען..." : "בחר פלטפורמה..."}</option>
+          <option value="">
+            {loadingPlatforms ? "טוען..." : "בחר פלטפורמה..."}
+          </option>
+
           {platforms.map((p) => (
             <option key={p.id} value={p.id}>
               {p.name}
             </option>
           ))}
         </select>
-        {err.platform_id && <p className="text-sm text-red-600">{err.platform_id}</p>}
+
+        {err.platform_id && (
+          <p className="text-sm text-red-600">{err.platform_id}</p>
+        )}
       </div>
 
       <div className="space-y-2">
         <Label htmlFor="enviroment_type" className="huninn-regular text-lg text-gray-700">
           סוג הסביבה (לחישוב מחדש):
         </Label>
+
         <div className="flex gap-2">
           <select
             id="enviroment_type"
@@ -401,6 +442,7 @@ export default function MissionForm({ initial, onSaved, onCancel }: MissionFormP
             onChange={onChangeEnv}
           >
             <option value="">בחר סוג סביבה...</option>
+
             {ENV_OPTIONS.map((option) => (
               <option key={option.value} value={option.value}>
                 {option.label}
@@ -412,11 +454,17 @@ export default function MissionForm({ initial, onSaved, onCancel }: MissionFormP
             בחירה מהמפה
           </Button>
         </div>
-        {err.enviroment_type && <p className="text-sm text-red-600">{err.enviroment_type}</p>}
+
+        {err.enviroment_type && (
+          <p className="text-sm text-red-600">{err.enviroment_type}</p>
+        )}
       </div>
 
       <div className="space-y-2">
-        <Label className="huninn-regular text-lg text-gray-700">הזנת נ.צ. ידנית:</Label>
+        <Label className="huninn-regular text-lg text-gray-700">
+          הזנת נ.צ. ידנית:
+        </Label>
+
         <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
           <Input
             dir="ltr"
@@ -425,9 +473,15 @@ export default function MissionForm({ initial, onSaved, onCancel }: MissionFormP
             value={manualCoord.lat}
             onChange={(e) => {
               setManualCoord((prev) => ({ ...prev, lat: e.target.value }));
-              if (err.lat) setErr((prev) => ({ ...prev, lat: "" }));
+
+              if (err.lat) {
+                setErr((prev) => ({ ...prev, lat: "" }));
+              }
+
+              clearFrequencyResult();
             }}
           />
+
           <Input
             dir="ltr"
             type="text"
@@ -435,9 +489,15 @@ export default function MissionForm({ initial, onSaved, onCancel }: MissionFormP
             value={manualCoord.lon}
             onChange={(e) => {
               setManualCoord((prev) => ({ ...prev, lon: e.target.value }));
-              if (err.lon) setErr((prev) => ({ ...prev, lon: "" }));
+
+              if (err.lon) {
+                setErr((prev) => ({ ...prev, lon: "" }));
+              }
+
+              clearFrequencyResult();
             }}
           />
+
           <Button type="button" onClick={handleResolveManualCoords}>
             בדיקת נ.צ.
           </Button>
@@ -445,11 +505,19 @@ export default function MissionForm({ initial, onSaved, onCancel }: MissionFormP
       </div>
 
       <div className="space-y-1">
-        <Label className="huninn-regular text-lg text-gray-700">נקודת הציון שנבחרה:</Label>
+        <Label className="huninn-regular text-lg text-gray-700">
+          נקודת הציון שנבחרה:
+        </Label>
+
         <div className="text-sm text-gray-700 bg-gray-50 rounded px-3 py-2">
-          {coord.lat == null ? "לא נבחרה נקודה" : `${coord.lat.toFixed(6)}, ${coord.lon!.toFixed(6)}`}
+          {coord.lat == null
+            ? "לא נבחרה נקודה"
+            : `${coord.lat.toFixed(6)}, ${coord.lon!.toFixed(6)}`}
         </div>
-        {(err.lat || err.lon) && <p className="text-sm text-red-600">{err.lat || err.lon}</p>}
+
+        {(err.lat || err.lon) && (
+          <p className="text-sm text-red-600">{err.lat || err.lon}</p>
+        )}
       </div>
 
       <div className="space-y-2 border-t pt-4">
@@ -459,10 +527,14 @@ export default function MissionForm({ initial, onSaved, onCancel }: MissionFormP
           onClick={handleRequestFrequency}
           disabled={freqLoading}
         >
-          {freqLoading ? "מבקש תדר ועוצמת שידור..." : "קבלת תדר ועוצמת שידור מתאימה"}
+          {freqLoading
+            ? "מבקש תדר ועוצמת שידור..."
+            : "קבלת תדר ועוצמת שידור מתאימה"}
         </Button>
 
-        {err.frequency && <p className="text-sm text-red-600">{err.frequency}</p>}
+        {err.frequency && (
+          <p className="text-sm text-red-600">{err.frequency}</p>
+        )}
 
         {freqResult && (
           <div className="mt-3 rounded border border-gray-200 bg-gray-50 p-3 space-y-1 huninn-regular text-gray-800">
@@ -470,6 +542,7 @@ export default function MissionForm({ initial, onSaved, onCancel }: MissionFormP
               <strong>תדר שנבחר (MHz): </strong>
               {freqResult.freq_mhz.toFixed(3)}
             </div>
+
             <div>
               <strong>עוצמת שידור שנבחרה (dBm): </strong>
               {freqResult.tx_power_dbm.toFixed(2)}
@@ -488,6 +561,7 @@ export default function MissionForm({ initial, onSaved, onCancel }: MissionFormP
             ביטול
           </Button>
         )}
+
         <Button
           className="hover:text-blue-900 border rounded-xl text-right huninn-regular border-black"
           type="submit"
@@ -497,7 +571,11 @@ export default function MissionForm({ initial, onSaved, onCancel }: MissionFormP
       </div>
 
       {showPicker && (
-        <MapPicker onPick={handlePickFromMap} onClose={() => setShowPicker(false)} missions={missionsOnMap}/>
+        <MapPicker
+          onPick={handlePickFromMap}
+          onClose={() => setShowPicker(false)}
+          missions={missionsOnMap}
+        />
       )}
     </form>
   );

@@ -1,5 +1,9 @@
 import { makeCrud, patch } from "./BaseApi";
-import type { Mission, CreateMissionRequest, UpdateMissionRequest } from "@/interfaces/MissionInterface";
+import type {
+    Mission,
+    CreateMissionRequest,
+    UpdateMissionRequest,
+} from "@/interfaces/MissionInterface";
 
 const missionCrud = makeCrud<Mission, CreateMissionRequest, UpdateMissionRequest>("missions");
 
