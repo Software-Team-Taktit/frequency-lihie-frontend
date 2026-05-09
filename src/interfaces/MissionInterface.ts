@@ -52,6 +52,7 @@ export interface Mission {
     freq_mhz: number;
     tx_power_dbm: number;
     platform_id: string;
+    owner_id?: string;
 
     is_active: boolean;
     created_at: string;
