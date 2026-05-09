@@ -272,7 +272,7 @@ export default function MissionForm({ initial, onSaved, onCancel }: MissionFormP
       coordinate: { latitude: coord.lat, longitude: coord.lon },
       enviroment_type: finalEnvType,
       platform_id: mission.platform_id,
-      excluse_mission_id: initial.id
+      exclude_mission_id: initial.id
     };
 
     try {

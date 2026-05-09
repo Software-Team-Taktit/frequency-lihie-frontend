@@ -17,7 +17,7 @@ export interface FrequencyRequest {
     coordinate: Coordinate;
     enviroment_type: EnvType;
     platform_id: string;
-    excluse_mission_id?: string;
+    exclude_mission_id?: string;
 }
 
 export interface FrequencyResponse {
