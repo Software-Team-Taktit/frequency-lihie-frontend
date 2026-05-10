@@ -1,4 +1,4 @@
-import { makeCrud } from "./BaseApi";
+import { makeCrud, del } from "./BaseApi";
 import type {
     User,
     CreateUserRequest,
@@ -6,3 +6,7 @@ import type {
 } from "../interfaces/UserInterface";
 
 export const UserApi = makeCrud<User, CreateUserRequest, UpdateUserRequest>("users");
+
+export function deleteCurrentUserProfile(): Promise<void> {
+    return del("/users/profile/me");
+}
