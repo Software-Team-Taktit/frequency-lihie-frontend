@@ -1,49 +1,66 @@
 import { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { Label } from "@radix-ui/react-label";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../../components/ui/dialog";
+
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+    DialogFooter,
+} from "../../components/ui/dialog";
+
 import { useAuth, type Principal } from "../../context/AuthContext";
 import { type UpdateUserRequest } from "../../interfaces/UserInterface";
 import { UserApi } from "../../services/UserApi";
 import { AdminsApi } from "../../services/AdminApi";
+import { HttpError } from "../../services/BaseApi";
 
 type UserProfilePanelProps = {
     open: boolean;
     onOpenChange: (open: boolean) => void;
-}
+};
 
-function UserProfilePanel({open, onOpenChange}: UserProfilePanelProps) {
-    const {user, setUser} = useAuth();
+function UserProfilePanel({ open, onOpenChange }: UserProfilePanelProps) {
+    const navigate = useNavigate();
+    const { user, setUser, deleteCurrentProfile } = useAuth();
 
     const [editOpen, setEditOpen] = useState(false);
+    const [deleteOpen, setDeleteOpen] = useState(false);
 
-    const [firstName, setFirstName] = useState("");;
+    const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
-    const [ unit, setUnit ] = useState("");
+    const [unit, setUnit] = useState("");
 
     const [saving, setSaving] = useState(false);
+    const [deleting, setDeleting] = useState(false);
+
     const [error, setError] = useState<string | null>(null);
+    const [deleteError, setDeleteError] = useState<string | null>(null);
 
     const isAdmin = !!user && String(user.type).toLowerCase() === "admin";
 
     const fullName = useMemo(() => {
         if (!user) return "";
         return `${user.first_name ?? ""} ${user.last_name ?? ""}`.trim();
-    },[user]);
+    }, [user]);
 
     const roleText = isAdmin ? "מנהל מערכת" : "משתמש";
 
     useEffect(() => {
-        if(!user) return;
+        if (!user) return;
 
         setFirstName(user.first_name ?? "");
         setLastName(user.last_name ?? "");
         setUnit(user.unit ?? "");
         setError(null);
-    }, [user,editOpen]);
+    }, [user, editOpen]);
 
-    if (!user) return;
+    if (!user) return null;
 
     async function handleSaveDetails() {
         if (!user) return;
@@ -72,10 +89,31 @@ function UserProfilePanel({open, onOpenChange}: UserProfilePanelProps) {
             setUser(updatedUser);
             setEditOpen(false);
         } catch (e: any) {
-            console.log(e?.response?.data);
-            setError(e?.response?.data?.detail ?? "שגיאה בעדכון הפרטים");
+            setError(e?.message ?? "שגיאה בעדכון הפרטים");
         } finally {
             setSaving(false);
+        }
+    }
+
+    async function handleDeleteProfile() {
+        setDeleting(true);
+        setDeleteError(null);
+
+        try {
+            await deleteCurrentProfile();
+
+            setDeleteOpen(false);
+            onOpenChange(false);
+
+            navigate("/logIn", { replace: true });
+        } catch (e: unknown) {
+            if (e instanceof HttpError && e.status === 409) {
+                setDeleteError("לא ניתן למחוק את הפרופיל כי קיימות משימות ששייכות למשתמש הזה.");
+            } else {
+                setDeleteError("אירעה שגיאה במחיקת הפרופיל. נסי שוב.");
+            }
+        } finally {
+            setDeleting(false);
         }
     }
 
@@ -91,7 +129,7 @@ function UserProfilePanel({open, onOpenChange}: UserProfilePanelProps) {
                     />
 
                     <aside
-                        className="absolute left-0 top-0 h-full w-[390px] max-w-[90vw] bg-blue-100 border-r border-black shadow-2xl p-6"
+                        className="absolute left-0 top-0 flex h-full w-[390px] max-w-[90vw] flex-col bg-blue-100 border-r border-black shadow-2xl p-6"
                         dir="rtl"
                     >
                         <div className="flex items-start justify-between gap-4">
@@ -108,6 +146,7 @@ function UserProfilePanel({open, onOpenChange}: UserProfilePanelProps) {
                                 <h2 className="text-3xl huninn-bold text-blue-700 text-right">
                                     פרטי משתמש
                                 </h2>
+
                                 <p className="huninn-regular text-gray-600 mt-1">
                                     צפייה ועדכון פרטים אישיים
                                 </p>
@@ -172,6 +211,25 @@ function UserProfilePanel({open, onOpenChange}: UserProfilePanelProps) {
                         >
                             עדכון פרטים
                         </Button>
+
+                        <div className="mt-auto pt-6">
+                            {deleteError && (
+                                <p className="mb-3 text-right text-sm text-red-700 huninn-regular">
+                                    {deleteError}
+                                </p>
+                            )}
+
+                            <Button
+                                variant="outline"
+                                className="w-full rounded-xl border-red-500 bg-white text-red-600 hover:bg-red-50 hover:text-red-700 huninn-regular text-lg"
+                                onClick={() => {
+                                    setDeleteError(null);
+                                    setDeleteOpen(true);
+                                }}
+                            >
+                                ✕ מחיקת פרופיל משתמש
+                            </Button>
+                        </div>
                     </aside>
                 </div>
             )}
@@ -185,6 +243,10 @@ function UserProfilePanel({open, onOpenChange}: UserProfilePanelProps) {
                         <DialogTitle className="w-full text-right sm:text-right text-2xl huninn-bold text-blue-700">
                             עדכון פרטים
                         </DialogTitle>
+
+                        <DialogDescription className="w-full text-right huninn-regular text-gray-600">
+                            ניתן לעדכן את השם הפרטי, שם המשפחה והיחידה של המשתמש.
+                        </DialogDescription>
                     </DialogHeader>
 
                     <div className="grid gap-4 py-4">
@@ -251,8 +313,50 @@ function UserProfilePanel({open, onOpenChange}: UserProfilePanelProps) {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+                <DialogContent
+                    className="sm:max-w-[480px] rounded-2xl bg-white border border-red-400"
+                    dir="rtl"
+                >
+                    <DialogHeader className="w-full text-right sm:text-right">
+                        <DialogTitle className="w-full text-right sm:text-right text-2xl huninn-bold text-red-600">
+                            את/ה בטוח/ה?
+                        </DialogTitle>
+
+                        <DialogDescription className="w-full text-right huninn-regular text-gray-700">
+                            פעולה זו תמחק את המשתמש הנוכחי לצמיתות. לא ניתן יהיה לשחזר את הפרופיל לאחר המחיקה.
+                        </DialogDescription>
+                    </DialogHeader>
+
+                    {deleteError && (
+                        <p className="text-right text-sm text-red-700 huninn-regular">
+                            {deleteError}
+                        </p>
+                    )}
+
+                    <DialogFooter className="flex flex-row-reverse gap-3">
+                        <Button
+                            className="rounded-xl bg-red-600 text-white hover:bg-red-700 huninn-regular"
+                            onClick={handleDeleteProfile}
+                            disabled={deleting}
+                        >
+                            {deleting ? "מוחק.." : "מחיקה לצמיתות"}
+                        </Button>
+
+                        <Button
+                            variant="outline"
+                            className="rounded-xl border-black huninn-regular"
+                            onClick={() => setDeleteOpen(false)}
+                            disabled={deleting}
+                        >
+                            ביטול
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
         </>
     );
 }
 
-export default UserProfilePanel
+export default UserProfilePanel;
