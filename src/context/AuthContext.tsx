@@ -14,6 +14,10 @@ import {
     refresh as apiRefresh,
 } from "../services/AuthApi";
 
+import { clearAccess } from "../services/BaseApi";
+import { deleteCurrentUserProfile } from "../services/UserApi";
+import { deleteCurrentAdminProfile } from "../services/AdminApi";
+
 // ===== Types =====
 export type Principal = User | Admin;
 
@@ -21,6 +25,7 @@ interface AuthContextType {
     user: Principal | null;
     setUser: (user: Principal | null) => void;
     logout: () => Promise<void>;
+    deleteCurrentProfile: () => Promise<void>;
 }
 
 // ===== Context =====
@@ -61,12 +66,25 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
     };
 
+    const deleteCurrentProfile = async () => {
+        try{
+            if (user && String(user.type).toLowerCase() === "admin") {
+                await deleteCurrentAdminProfile();
+            } else {
+                await deleteCurrentUserProfile();
+            }
+        } finally {
+            clearAccess();
+            setUser(null);
+        }
+    }
+
     if (loading) {
         return null; // או spinner אם בא לך
     }
 
     return (
-        <AuthContext.Provider value={{ user, setUser, logout }}>
+        <AuthContext.Provider value={{ user, setUser, logout, deleteCurrentProfile }}>
             {children}
         </AuthContext.Provider>
     );
