@@ -105,33 +105,38 @@ function PlatformGallery() {
                             <DialogTitle className="w-full text-right sm:text-right text-3xl huninn-bold text-blue-700">
                                 אין הרשאה לצפייה בגלריית הפלטפורמות
                             </DialogTitle>
-                            <DialogDescription className="w-full text-right sm:text-right huninn-regular text-gray-800 leading-8">
+                            <DialogDescription className="w-full text-lg text-right sm:text-right huninn-regular text-gray-800 leading-8">
                                 גלריית הפלטפורמות מכילה מידע מבצעי ולכן זמינה רק למשתמשים מחוברים.
                             </DialogDescription>
                         </DialogHeader>
                         <div className="huninn-regular text-lg text-gray-800 text-right leading-8">
                             כדי להמשיך, יש להתחבר למערכת עם משתמש מורשה.
                         </div>
-                        <DialogFooter className="flex flex-row-reverse gap-3 mt-4">
-                            <Button
-                                className="rounded-xl bg-blue-400 text-white hover:bg-blue-500 huninn-regular"
-                                onClick={() => {
-                                    navigate("/logIn");
-                                    setAccessDialogOpen(false);
-                                }}
-                            >
-                                להתחברות
-                            </Button>
+                        <DialogFooter
+                            className="w-full flex !flex-row !items-center !justify-between gap-3 mt-4"
+                            dir="rtl"
+                        >
+                            <div className="flex gap-3">
+                                <Button
+                                    className="rounded-xl bg-blue-400 text-white hover:bg-blue-500 huninn-regular"
+                                    onClick={() => {
+                                        navigate("/logIn");
+                                        setAccessDialogOpen(false);
+                                    }}
+                                >
+                                    להתחברות
+                                </Button>
 
-                            <Button
-                                className="rounded-xl bg-blue-400 text-white hover:bg-blue-500 huninn-regular"
-                                onClick={() => {
-                                    navigate("/register");
-                                    setAccessDialogOpen(false);
-                                }}
-                            >
-                                להרשמה
-                            </Button>
+                                <Button
+                                    className="rounded-xl bg-blue-400 text-white hover:bg-blue-500 huninn-regular"
+                                    onClick={() => {
+                                        navigate("/register");
+                                        setAccessDialogOpen(false);
+                                    }}
+                                >
+                                    להרשמה
+                                </Button>
+                            </div>
 
                             <Button
                                 className="rounded-xl bg-blue-400 text-white hover:bg-blue-500 huninn-regular"
