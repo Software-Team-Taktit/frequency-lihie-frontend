@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
 import { Marker, Popup } from "react-leaflet";
+import { useNavigate } from "react-router-dom";
 import {
     Dialog,
     DialogContent,
+    DialogDescription,
     DialogFooter,
     DialogHeader,
     DialogTitle,
@@ -15,6 +17,7 @@ import MissionForm from "./MissionForm";
 
 import { MissionsApi } from "../../services/MissionApi";
 import type { Mission } from "../../interfaces/MissionInterface";
+import { useAuth } from "../../context/AuthContext";
 
 function MissionMapPage() {
     const [missions, setMissions] = useState<Mission[]>([]);
@@ -22,6 +25,7 @@ function MissionMapPage() {
     const [editing, setEditing] = useState<Mission | null>(null);
     const [loading, setLoading] = useState(true);
 
+    const [accessDialogOpen, setAccessDialogOpen] = useState(false);
     const [permissionDialogOpen, setPermissionDialogOpen] = useState(false);
 
     type PermissionDialogAction = "update" | "delete" | "finish";
@@ -35,12 +39,56 @@ function MissionMapPage() {
     const [permissionDialogAction, setPermissionDialogAction] =
         useState<PermissionDialogAction>("update");
 
+    const { user } = useAuth();
+    const navigate = useNavigate();
+
+    function closeAccessDialogAndGoHome() {
+        setAccessDialogOpen(false);
+        navigate("/home");
+    }
+
+    function openAccessDialog() {
+        setAccessDialogOpen(true);
+    }
+
     function openPermissionDialog(action: PermissionDialogAction) {
         setPermissionDialogAction(action);
         setPermissionDialogOpen(true);
     }
 
+    function getCurrentUserId() {
+        return (user as any)?.id ?? (user as any)?.personal_id;
+    }
+
+    function isCurrentUserAdmin() {
+        const role = (user as any)?.role;
+        const type = (user as any)?.type;
+
+        return (
+            String(role).toLowerCase() === "admin" ||
+            String(type).toLowerCase().includes("admin")
+        );
+    }
+
+    function canCurrentUserModifyMission(mission: Mission) {
+        if (!user) return false;
+
+        if (isCurrentUserAdmin()) return true;
+
+        if (!(mission as any).owner_id) return false;
+
+        return String((mission as any).owner_id) === String(getCurrentUserId());
+    }
+
     async function load() {
+        if (!user) {
+            setMissions([]);
+            setSelectedMission(null);
+            setEditing(null);
+            setLoading(false);
+            return;
+        }
+
         try {
             setLoading(true);
             const list = await MissionsApi.list();
@@ -54,10 +102,43 @@ function MissionMapPage() {
     }
 
     useEffect(() => {
+        if (!user) {
+            setMissions([]);
+            setSelectedMission(null);
+            setEditing(null);
+            setLoading(false);
+            setAccessDialogOpen(true);
+            return;
+        }
+
         load();
-    }, []);
+    }, [user]);
+
+    function handleEditMission(mission: Mission) {
+        if (!user) {
+            openAccessDialog();
+            return;
+        }
+
+        if (!canCurrentUserModifyMission(mission)) {
+            openPermissionDialog("update");
+            return;
+        }
+
+        setEditing(mission);
+    }
 
     async function handleDelete(mission: Mission) {
+        if (!user) {
+            openAccessDialog();
+            return;
+        }
+
+        if (!canCurrentUserModifyMission(mission)) {
+            openPermissionDialog("delete");
+            return;
+        }
+
         try {
             await MissionsApi.remove(mission.id);
 
@@ -77,6 +158,16 @@ function MissionMapPage() {
     }
 
     async function handleFinishMission(mission: Mission) {
+        if (!user) {
+            openAccessDialog();
+            return;
+        }
+
+        if (!canCurrentUserModifyMission(mission)) {
+            openPermissionDialog("finish");
+            return;
+        }
+
         try {
             const updatedMission = await MissionsApi.complete(mission.id);
 
@@ -95,6 +186,68 @@ function MissionMapPage() {
                 return;
             }
         }
+    }
+
+    if (!user) {
+        return (
+            <div
+                className="bg-blue-100 rounded-xl p-8 md:p-10 w-[1800px] h-[750px] mx-auto shadow-md flex items-center justify-center"
+                dir="rtl"
+            >
+                <Dialog
+                    open={accessDialogOpen}
+                    onOpenChange={(open) => {
+                        setAccessDialogOpen(open);
+
+                        if (!open) {
+                            navigate("/home");
+                        }
+                    }}
+                >
+                    <DialogContent
+                        className="sm:max-w-[560px] rounded-2xl bg-blue-100 border border-black"
+                        dir="rtl"
+                    >
+                        <DialogHeader className="w-full text-right sm:text-right" dir="rtl">
+                            <DialogTitle className="w-full text-right sm:text-right text-3xl huninn-bold text-blue-700">
+                                אין הרשאה לצפייה במפת המשימות
+                            </DialogTitle>
+
+                            <DialogDescription className="w-full text-right sm:text-right huninn-regular text-gray-800 leading-8">
+                                מפת המשימות מכילה מידע מבצעי ולכן זמינה רק למשתמשים מחוברים.
+                            </DialogDescription>
+                        </DialogHeader>
+
+                        <div className="huninn-regular text-lg text-gray-800 text-right leading-8">
+                            כדי להמשיך, יש להתחבר למערכת עם משתמש מורשה.
+                        </div>
+
+                        <DialogFooter className="flex flex-row-reverse gap-3 mt-4">
+                            <Button
+                                className="rounded-xl bg-blue-400 text-white hover:bg-blue-500 huninn-regular"
+                                onClick={() => navigate("/logIn")}
+                            >
+                                להתחברות
+                            </Button>
+
+                            <Button
+                                className="rounded-xl bg-blue-400 text-white hover:bg-blue-500 huninn-regular"
+                                onClick={() => navigate("/register")}
+                            >
+                                להרשמה
+                            </Button>
+
+                            <Button
+                                className="rounded-xl bg-blue-400 text-white hover:bg-blue-500 huninn-regular"
+                                onClick={closeAccessDialogAndGoHome}
+                            >
+                                הבנתי
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            </div>
+        );
     }
 
     return (
@@ -144,7 +297,7 @@ function MissionMapPage() {
                     {selectedMission ? (
                         <MissionCard
                             m={selectedMission}
-                            onEdit={setEditing}
+                            onEdit={handleEditMission}
                             onDelete={handleDelete}
                             onFinish={handleFinishMission}
                         />
@@ -168,6 +321,10 @@ function MissionMapPage() {
                         <DialogTitle className="text-right font-bold text-2xl huninn-regular">
                             עריכת משימה
                         </DialogTitle>
+
+                        <DialogDescription className="sr-only">
+                            עדכון פרטי המשימה
+                        </DialogDescription>
                     </DialogHeader>
 
                     {editing && (
@@ -199,8 +356,12 @@ function MissionMapPage() {
                 >
                     <DialogHeader className="w-full text-right sm:text-right" dir="rtl">
                         <DialogTitle className="w-full text-right sm:text-right text-3xl huninn-bold text-red-700">
-                            היי היי! אין הרשאה 😤
+                            הרשאה נדחתה!
                         </DialogTitle>
+
+                        <DialogDescription className="w-full text-right sm:text-right huninn-regular text-gray-900 leading-8">
+                            הפעולה זמינה רק למשתמש שיצר את המשימה או למנהל מערכת.
+                        </DialogDescription>
                     </DialogHeader>
 
                     <div className="huninn-regular text-lg text-gray-900 text-right leading-8">
