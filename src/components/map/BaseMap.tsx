@@ -37,6 +37,7 @@ function ClickCatcher({ onMapClick }: { onMapClick: (lat: number, lon: number) =
 export default function BaseApi({ children, onMapClick }: BaseMapProps) {
     return (
         <MapContainer
+            className="relative z-0 isolate"
             center={[31.5, 35]}
             zoom={7}
             style={{ height: "100%", width: "100%" }}
