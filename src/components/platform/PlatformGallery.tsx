@@ -115,14 +115,20 @@ function PlatformGallery() {
                         <DialogFooter className="flex flex-row-reverse gap-3 mt-4">
                             <Button
                                 className="rounded-xl bg-blue-400 text-white hover:bg-blue-500 huninn-regular"
-                                onClick={() => navigate("/logIn")}
+                                onClick={() => {
+                                    navigate("/logIn");
+                                    setAccessDialogOpen(false);
+                                }}
                             >
                                 להתחברות
                             </Button>
 
                             <Button
                                 className="rounded-xl bg-blue-400 text-white hover:bg-blue-500 huninn-regular"
-                                onClick={() => navigate("/register")}
+                                onClick={() => {
+                                    navigate("/register");
+                                    setAccessDialogOpen(false);
+                                }}
                             >
                                 להרשמה
                             </Button>
