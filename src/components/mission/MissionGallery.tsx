@@ -11,6 +11,7 @@ import {
     DialogTitle,
     DialogContent,
     DialogFooter,
+    DialogDescription
 } from "../../components/ui/dialog";
 import { MissionsApi } from "../../services/MissionApi";
 import MissionActivityFilter from "./MissionActivityFilter";
@@ -26,18 +27,10 @@ function MissionGallery() {
     const [activityFilter, setActivityFilter] =
         useState<MissionActivityFilterValue>("all");
 
-    const [loginDialogOpen, setLoginDialogOpen] = useState(false);
+    const [accessDialogOpen, setAccessDialogOpen] = useState(false);
     const [permissionDialogOpen, setPermissionDialogOpen] = useState(false);
 
-    type LoginDialogAction = "create" | "update" | "delete" | "finish";
     type PermissionDialogAction = "update" | "delete" | "finish";
-
-    const loginDialogText: Record<LoginDialogAction, string> = {
-        create: "ליצור",
-        update: "לעדכן",
-        delete: "למחוק",
-        finish: "לסיים",
-    };
 
     const permissionDialogText: Record<PermissionDialogAction, string> = {
         update: "לערוך",
@@ -45,18 +38,19 @@ function MissionGallery() {
         finish: "לסמן כסיום",
     };
 
-    const [loginDialogAction, setLoginDialogAction] =
-        useState<LoginDialogAction>("create");
-
     const [permissionDialogAction, setPermissionDialogAction] =
         useState<PermissionDialogAction>("update");
 
     const { user } = useAuth();
     const navigate = useNavigate();
 
-    function openLoginDialog(action: LoginDialogAction) {
-        setLoginDialogAction(action);
-        setLoginDialogOpen(true);
+    function closeAccessDialogAndGoHome() {
+        setAccessDialogOpen(false);
+        navigate("/home");
+    }
+
+    function openAccessDialog() {
+        setAccessDialogOpen(true);
     }
 
     function openPermissionDialog(action: PermissionDialogAction) {
@@ -99,12 +93,19 @@ function MissionGallery() {
     }
 
     useEffect(() => {
+        if (!user) {
+            setItems([]);
+            setEditing(null);
+            setAccessDialogOpen(true);
+            return;
+        }
+
         load();
-    }, []);
+    }, [user]);
 
     async function handleDelete(m: Mission) {
         if (!user) {
-            openLoginDialog("delete");
+            openAccessDialog();
             return;
         }
 
@@ -128,7 +129,7 @@ function MissionGallery() {
 
     async function handleFinishMission(mission: Mission) {
         if (!user) {
-            openLoginDialog("finish");
+            openAccessDialog();
             return;
         }
 
@@ -159,7 +160,7 @@ function MissionGallery() {
 
     function handleCreateMissionClick() {
         if (!user) {
-            openLoginDialog("create");
+            openAccessDialog();
             return;
         }
 
@@ -168,12 +169,12 @@ function MissionGallery() {
 
     function handleUpdateMissionClick(m: Mission) {
         if (!user) {
-            openLoginDialog("update");
+            openAccessDialog();
             return;
         }
 
         if (!canCurrentUserModifyMission(m)) {
-            openPermissionDialog("update");
+            openAccessDialog();
             return;
         }
 
@@ -183,6 +184,59 @@ function MissionGallery() {
     const filteredItems = useMemo(() => {
         return filterMissionByActivity(items ?? [], activityFilter);
     }, [items, activityFilter]);
+
+    if (!user){
+        return (
+            <div className="bg-blue-100 rounded-xl p-8 md:p-10 w-[1800px] h-[750px] mx-auto shadow-md flex items-center justify-center"
+                dir="rtl">
+                <Dialog open={accessDialogOpen} onOpenChange={
+                    (open) => {
+                        setAccessDialogOpen(open);
+                        if (!open) {
+                            navigate("/home");
+                        }
+                    }
+                }>
+                    <DialogContent className="sm:max-w-[560px] rounded-2xl bg-blue-100 border border-black"
+                        dir="rtl">
+                        <DialogHeader className="w-full text-right sm:text-right" dir="rtl">
+                            <DialogTitle className="w-full text-right sm:text-right text-3xl huninn-bold text-blue-700">
+                                אין הרשאה לצפייה בגלריית המשימות.
+                            </DialogTitle>
+                            <DialogDescription className="w-full text-right sm:text-right huninn-regular text-gray-800 leading-8">
+                                גלריית המשימות מכילה מידע מבצעי ולכן זמינה רק למשתמשים מחוברים.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="huninn-regular text-lg text-gray-800 text-right leading-8">
+                            כדי להמשיך, יש להתחבר למערכת עם משתמש מורשה.
+                        </div>
+                        <DialogFooter className="flex flex-row-reverse gap-3 mt-4">
+                            <Button
+                                className="rounded-xl bg-blue-400 text-white hover:bg-blue-500 huninn-regular"
+                                onClick={() => navigate("/logIn")}
+                            >
+                                להתחברות
+                            </Button>
+
+                            <Button
+                                className="rounded-xl bg-blue-400 text-white hover:bg-blue-500 huninn-regular"
+                                onClick={() => navigate("/register")}
+                            >
+                                להרשמה
+                            </Button>
+
+                            <Button
+                                className="rounded-xl bg-blue-400 text-white hover:bg-blue-500 huninn-regular"
+                                onClick={closeAccessDialogAndGoHome}
+                            >
+                                הבנתי
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            </div>
+        )
+    }
 
     return (
         <div
@@ -261,34 +315,6 @@ function MissionGallery() {
                             }}
                         />
                     )}
-                </DialogContent>
-            </Dialog>
-
-            <Dialog open={loginDialogOpen} onOpenChange={setLoginDialogOpen}>
-                <DialogContent
-                    className="sm:max-w-[600px] rounded-2xl bg-blue-100 border border-black"
-                    dir="rtl"
-                >
-                    <DialogHeader className="w-full text-right sm:text-right" dir="rtl">
-                        <DialogTitle className="w-full text-right sm:text-right text-2xl huninn-bold text-blue-700">
-                            אופס!
-                        </DialogTitle>
-                    </DialogHeader>
-
-                    <div className="huninn-regular text-lg text-gray-800 text-right leading-8">
-                        נראה שאת/ה לא מחובר/ת.
-                        <br />
-                        כדי {loginDialogText[loginDialogAction]} משימה צריך להתחבר קודם.
-                    </div>
-
-                    <DialogFooter className="flex flex-row-reverse gap-3 mt-4">
-                        <Button
-                            className="rounded-xl bg-blue-400 text-white hover:bg-blue-500 huninn-regular"
-                            onClick={() => navigate("/login")}
-                        >
-                            להתחברות
-                        </Button>
-                    </DialogFooter>
                 </DialogContent>
             </Dialog>
 

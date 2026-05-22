@@ -1,4 +1,4 @@
-import {useEffect, useState} from "react";
+import { useEffect, useState } from "react";
 import { PlatformCard } from "./PlatformCard";
 import type { Platform } from "../../interfaces/PlatformInterface";
 import { Button } from "../ui/button";
@@ -7,23 +7,17 @@ import { Label } from "../ui/label";
 import { Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "../../components/ui/dialog";
-import {PlatformsApi} from "../../services/PlatformApi";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from "../../components/ui/dialog";
+import { PlatformsApi } from "../../services/PlatformApi";
 
 function PlatformGallery() {
-    const [items, setItems] = useState<Platform[] | null>(null);
-    const [error, setError] = useState<String | null>(null);
-    const [editing, setEditing] = useState<Platform | null>(null);
-    const [loginDialogOpen, setLoginDialogOpen] = useState(false);
-    type LoginDialogAction = "create" | "update" | "delete";
-    const loginDialogText: Record<LoginDialogAction, string> = {
-        create: "ליצור",
-        update: "לעדכן",
-        delete: "למחוק",
-    }
-    const [loginDialogAction, setLoginDialogAction] = useState<LoginDialogAction>("create");
     const { user } = useAuth();
     const navigate = useNavigate();
+
+    const [items, setItems] = useState<Platform[]>([]);
+    const [error, setError] = useState<string | null>(null);
+    const [editing, setEditing] = useState<Platform | null>(null);
+    const [accessDialogOpen, setAccessDialogOpen] = useState(false);
     
     async function load() {
         try{
@@ -36,16 +30,19 @@ function PlatformGallery() {
         } 
     }
 
-    useEffect(() => {load();},[]);
-
-    function openLoginDialog(action: LoginDialogAction) {
-        setLoginDialogAction(action);
-        setLoginDialogOpen(true);
-    }
+    useEffect(() => {
+        if(!user) {
+            setItems([]);
+            setEditing(null);
+            setAccessDialogOpen(true);
+            return;
+        }
+        load();
+    }, [user]);
 
     function handleCreatePlatformClick(){
         if (!user) {
-            openLoginDialog("create");
+            setAccessDialogOpen(true);
             return;
         }
         navigate("/platformForm");
@@ -53,7 +50,7 @@ function PlatformGallery() {
 
     function handleEditPlatformClick(p: Platform){
         if (!user) {
-            openLoginDialog("update");
+            setAccessDialogOpen(true);
             return;
         }
 
@@ -62,7 +59,7 @@ function PlatformGallery() {
 
     async function handleDelete(p: Platform) {
         if (!user){
-            openLoginDialog("delete");
+            setAccessDialogOpen(true);
             return;
         }
         await (PlatformsApi as any).remove(p.id);
@@ -83,6 +80,64 @@ function PlatformGallery() {
         });
         setEditing(null);
         await load();
+    }
+
+    function closeAccessDialogAndGoHome() {
+        setAccessDialogOpen(false);
+        navigate("/home");
+    }
+
+    if (!user){
+        return (
+            <div className="bg-blue-100 rounded-xl p-8 md:p-10 w-[1800px] h-[750px] mx-auto shadow-md flex items-center justify-center"
+                dir="rtl">
+                <Dialog open={accessDialogOpen} onOpenChange={
+                    (open) => {
+                        setAccessDialogOpen(open);
+                        if (!open) {
+                            navigate("/home");
+                        }
+                    }
+                }>
+                    <DialogContent className="sm:max-w-[560px] rounded-2xl bg-blue-100 border border-black"
+                        dir="rtl">
+                        <DialogHeader className="w-full text-right sm:text-right" dir="rtl">
+                            <DialogTitle className="w-full text-right sm:text-right text-3xl huninn-bold text-blue-700">
+                                אין הרשאה לצפייה בגלריית הפלטפורמות
+                            </DialogTitle>
+                            <DialogDescription className="w-full text-right sm:text-right huninn-regular text-gray-800 leading-8">
+                                גלריית הפלטפורמות מכילה מידע מבצעי ולכן זמינה רק למשתמשים מחוברים.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="huninn-regular text-lg text-gray-800 text-right leading-8">
+                            כדי להמשיך, יש להתחבר למערכת עם משתמש מורשה.
+                        </div>
+                        <DialogFooter className="flex flex-row-reverse gap-3 mt-4">
+                            <Button
+                                className="rounded-xl bg-blue-400 text-white hover:bg-blue-500 huninn-regular"
+                                onClick={() => navigate("/logIn")}
+                            >
+                                להתחברות
+                            </Button>
+
+                            <Button
+                                className="rounded-xl bg-blue-400 text-white hover:bg-blue-500 huninn-regular"
+                                onClick={() => navigate("/register")}
+                            >
+                                להרשמה
+                            </Button>
+
+                            <Button
+                                className="rounded-xl bg-blue-400 text-white hover:bg-blue-500 huninn-regular"
+                                onClick={closeAccessDialogAndGoHome}
+                            >
+                                הבנתי
+                            </Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </Dialog>
+            </div>
+        )
     }
 
     return (
@@ -230,32 +285,6 @@ function PlatformGallery() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-
-            <Dialog open={loginDialogOpen} onOpenChange={setLoginDialogOpen}>
-                <DialogContent className="sm:max-w-[600px] rounded-2xl bg-blue-100 border border-black" dir="rtl">
-                    <DialogHeader className="w-full text-right sm:text-right" dir="rtl">
-                        <DialogTitle className="w-full text-right sm:text-right text-2xl huninn-bold text-blue-700">
-                            אופס!
-                        </DialogTitle>
-                    </DialogHeader>
-
-                    <div className="huninn-regular text-lg text-gray-800 text-right leading-8">
-                        נראה שאת/ה לא מחובר/ת.
-                        <br/>
-                        כדי {loginDialogText[loginDialogAction]} פלטפורמה צריך להתחבר קודם.
-                    </div>
-
-                    <DialogFooter className="flex flex-row-reverse gap-3 mt-4">
-                        <Button
-                            className="rounded-xl bg-blue-400 text-white hover:bg-blue-500 huninn-regular"
-                            onClick={() => navigate("/login")}
-                        >
-                            להתחברות
-                        </Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
-
         </div>
     );
 }
