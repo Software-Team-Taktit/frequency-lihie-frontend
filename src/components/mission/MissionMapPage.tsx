@@ -279,7 +279,7 @@ function MissionMapPage() {
             </div>
 
             <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-6 flex-1 min-h-0">
-                <div className="rounded-2xl overflow-hidden border border-black bg-white shadow-md min-h-0">
+                <div className="relative z-0 isolate rounded-2xl overflow-hidden border border-black bg-white shadow-md min-h-0">
                     <BaseMap>
                         {missions.map((mission) => (
                             <Marker
@@ -325,7 +325,7 @@ function MissionMapPage() {
 
             <Dialog open={!!editing} onOpenChange={(v) => !v && setEditing(null)}>
                 <DialogContent
-                    className="sm:max-w-[600px] rounded-2xl bg-blue-100 border border-black"
+                    className="z-[9999] sm:max-w-[600px] rounded-2xl bg-blue-100 border border-black"
                     dir="rtl"
                 >
                     <DialogHeader>
@@ -362,7 +362,7 @@ function MissionMapPage() {
                 onOpenChange={setPermissionDialogOpen}
             >
                 <DialogContent
-                    className="sm:max-w-[600px] rounded-2xl bg-red-100 border border-red-500"
+                    className="z-[9999] sm:max-w-[600px] rounded-2xl bg-red-100 border border-red-500"
                     dir="rtl"
                 >
                     <DialogHeader className="w-full text-right sm:text-right" dir="rtl">
