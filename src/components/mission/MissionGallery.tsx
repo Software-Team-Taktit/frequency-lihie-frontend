@@ -201,7 +201,7 @@ function MissionGallery() {
                         dir="rtl">
                         <DialogHeader className="w-full text-right sm:text-right" dir="rtl">
                             <DialogTitle className="w-full text-right sm:text-right text-3xl huninn-bold text-blue-700">
-                                אין הרשאה לצפייה בגלריית המשימות.
+                                אתה לא מחובר!
                             </DialogTitle>
                             <DialogDescription className="w-full text-lg text-right sm:text-right huninn-regular text-gray-800 leading-8">
                                 גלריית המשימות מכילה מידע מבצעי ולכן זמינה רק למשתמשים מחוברים.
@@ -339,7 +339,7 @@ function MissionGallery() {
                 >
                     <DialogHeader className="w-full text-right sm:text-right" dir="rtl">
                         <DialogTitle className="w-full text-right sm:text-right text-3xl huninn-bold text-red-700">
-                            הרשאה נדחתה! 😤
+                            אין לך הרשאה!
                         </DialogTitle>
                     </DialogHeader>
 
