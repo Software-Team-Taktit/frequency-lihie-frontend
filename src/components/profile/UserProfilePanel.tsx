@@ -122,7 +122,7 @@ function UserProfilePanel({ open, onOpenChange }: UserProfilePanelProps) {
     }
 
     function handleBlockedDeleteClose() {
-        setDeleteBlockedOpen(true);
+        setDeleteBlockedOpen(false);
         setDeleteOpen(false);
         setEditOpen(false);
         setDeleteError(null);
