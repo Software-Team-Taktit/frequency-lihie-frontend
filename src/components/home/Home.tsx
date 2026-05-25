@@ -97,7 +97,7 @@ function Home() {
                 >
                     <DialogHeader className="w-full text-right sm:text-right" dir="rtl">
                         <DialogTitle className="w-full text-right sm:text-right text-3xl huninn-bold text-blue-700">
-                            אין הרשאה לצפייה במסך
+                            אתה לא מחובר!
                         </DialogTitle>
 
                         <DialogDescription className="w-full text-lg text-right sm:text-right huninn-regular text-gray-800 leading-8">
