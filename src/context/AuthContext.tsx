@@ -67,12 +67,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
 
     const deleteCurrentProfile = async () => {
+        if(!user) {
+            throw new Error("No current user");
+        }
+        if(String(user.type).toLowerCase() === "admin") {
+            await deleteCurrentAdminProfile();
+        } else {
+            await deleteCurrentUserProfile();
+        }
+
         try{
-            if (user && String(user.type).toLowerCase() === "admin") {
-                await deleteCurrentAdminProfile();
-            } else {
-                await deleteCurrentUserProfile();
-            }
+            await apiLogout();
         } finally {
             clearAccess();
             setUser(null);
