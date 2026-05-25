@@ -42,6 +42,8 @@ function UserProfilePanel({ open, onOpenChange }: UserProfilePanelProps) {
     const [error, setError] = useState<string | null>(null);
     const [deleteError, setDeleteError] = useState<string | null>(null);
 
+    const [deleteBlockedOpen, setDeleteBlockedOpen] = useState(false);
+
     const isAdmin = !!user && String(user.type).toLowerCase() === "admin";
 
     const fullName = useMemo(() => {
@@ -107,14 +109,26 @@ function UserProfilePanel({ open, onOpenChange }: UserProfilePanelProps) {
 
             navigate("/logIn", { replace: true });
         } catch (e: unknown) {
-            if (e instanceof HttpError && e.status === 409) {
-                setDeleteError("לא ניתן למחוק את הפרופיל כי קיימות משימות ששייכות למשתמש הזה.");
+            if(e instanceof HttpError && e.status === 409) { 
+                setDeleteOpen(false);
+                setDeleteError(null);
+                setDeleteBlockedOpen(true);
             } else {
-                setDeleteError("אירעה שגיאה במחיקת הפרופיל. נסי שוב.");
+                setDeleteError("אירעה שגיאה במחיקת הפרופיל. אנא נסה/י שוב מאוחר יותר.");
             }
         } finally {
             setDeleting(false);
         }
+    }
+
+    function handleBlockedDeleteClose() {
+        setDeleteBlockedOpen(true);
+        setDeleteOpen(false);
+        setEditOpen(false);
+        setDeleteError(null);
+        onOpenChange(false);
+
+        navigate("/home", { replace: true });
     }
 
     return (
@@ -354,6 +368,33 @@ function UserProfilePanel({ open, onOpenChange }: UserProfilePanelProps) {
                         </Button>
                     </DialogFooter>
                 </DialogContent>
+            </Dialog>
+            <Dialog open={deleteBlockedOpen} onOpenChange={(nextOpen) => {
+                if(!nextOpen) {
+                    handleBlockedDeleteClose();
+                }
+            }}>
+                <DialogContent className="sm:max-w-[480px] rounded-2xl bg-white border border-red-400" dir="rtl">
+                    <DialogHeader className="w-full text-right sm:text-right">
+                        <DialogTitle className="w-full text-right sm:text-right text-2xl huninn-bold text-red-600">
+                            לא ניתן למחוק את הפרופיל
+                        </DialogTitle>
+
+                        <DialogDescription className="w-full text-right huninn-regular text-gray-700">
+                            לא ניתן למחוק את הפרופיל לצמיתות כי קיימות משימות ששייכות אליו.
+                            יש למחוק או לסיים את המשימות לפני מחיקת הפרופיל.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <DialogFooter className="flex flex-row-reverse gap-3">
+                        <Button
+                            className="rounded-xl bg-blue-600 text-white hover:bg-blue-700 huninn-regular"
+                            onClick={handleBlockedDeleteClose}
+                        >
+                            הבנתי
+                        </Button>
+                    </DialogFooter>
+                </DialogContent>
+
             </Dialog>
         </>
     );
