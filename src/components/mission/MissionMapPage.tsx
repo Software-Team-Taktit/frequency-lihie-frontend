@@ -370,7 +370,7 @@ function MissionMapPage() {
                             הרשאה נדחתה!
                         </DialogTitle>
 
-                        <DialogDescription className="w-full text-right sm:text-right huninn-regular text-gray-900 leading-8">
+                        <DialogDescription className="w-full text-right text-xl sm:text-right huninn-regular text-gray-900 leading-8">
                             הפעולה זמינה רק למשתמש שיצר את המשימה או למנהל מערכת.
                         </DialogDescription>
                     </DialogHeader>

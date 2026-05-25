@@ -174,7 +174,7 @@ function MissionGallery() {
         }
 
         if (!canCurrentUserModifyMission(m)) {
-            openAccessDialog();
+            openPermissionDialog("update");
             return;
         }
 
@@ -203,7 +203,7 @@ function MissionGallery() {
                             <DialogTitle className="w-full text-right sm:text-right text-3xl huninn-bold text-blue-700">
                                 אתה לא מחובר!
                             </DialogTitle>
-                            <DialogDescription className="w-full text-lg text-right sm:text-right huninn-regular text-gray-800 leading-8">
+                            <DialogDescription className="w-full text-xl text-right sm:text-right huninn-regular text-gray-800 leading-8">
                                 גלריית המשימות מכילה מידע מבצעי ולכן זמינה רק למשתמשים מחוברים.
                             </DialogDescription>
                         </DialogHeader>
@@ -339,8 +339,12 @@ function MissionGallery() {
                 >
                     <DialogHeader className="w-full text-right sm:text-right" dir="rtl">
                         <DialogTitle className="w-full text-right sm:text-right text-3xl huninn-bold text-red-700">
-                            אין לך הרשאה!
+                            הרשאה נדחתה!
                         </DialogTitle>
+
+                        <DialogDescription className="w-full text-right text-xl sm:text-right huninn-regular text-gray-900 leading-8">
+                            הפעולה זמינה רק למשתמש שיצר את המשימה או למנהל מערכת.
+                        </DialogDescription>
                     </DialogHeader>
 
                     <div className="huninn-regular text-lg text-gray-900 text-right leading-8">
